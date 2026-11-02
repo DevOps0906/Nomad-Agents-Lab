@@ -9,7 +9,10 @@ const topics = {
   '아이디어': { color: '#ffc47d', className: 'ideas' },
 };
 
+const coreNodeId = 'brain-core';
+
 const nodes = [
+  { id: coreNodeId, title: '세컨드 브레인', topic: '세컨드 브레인', kind: '중심 허브', summary: '18개의 샘플 자료와 생각을 연결하는 세컨드 브레인 중심 허브.', tags: ['지식 관리', '탐색'], x: 0, y: 0, z: 0 },
   { id: 'ssr-plus', title: '나만의 AI 업무 시스템', topic: 'AI 시스템', kind: '노트', summary: 'Skill, Second Brain, Routine, Extension으로 일하는 방식을 연결하는 개인 AI 시스템.', tags: ['SSR+', '개인 AI'], x: -2.6, y: 1.6, z: 0.4 },
   { id: 'agent-skills', title: '재사용 가능한 AI 스킬', topic: 'AI 시스템', kind: '가이드', summary: '반복 업무를 작은 지침과 도구 조합으로 만들고 필요할 때 불러오는 방법.', tags: ['스킬', '자동화'], x: -3.2, y: 0.3, z: 1.1 },
   { id: 'prompt-design', title: '좋은 프롬프트의 구조', topic: 'AI 시스템', kind: '노트', summary: '목표, 맥락, 제약, 결과 형식을 분리하면 실행 결과를 더 안정적으로 다룰 수 있다.', tags: ['프롬프트', '설계'], x: -1.6, y: 2.4, z: -0.8 },
@@ -31,6 +34,7 @@ const nodes = [
 ];
 
 const links = [
+  ['brain-core', 'ssr-plus'], ['brain-core', 'second-brain'], ['brain-core', 'idea-garden'], ['brain-core', 'daily-review'],
   ['ssr-plus', 'agent-skills'], ['ssr-plus', 'prompt-design'], ['ssr-plus', 'local-first'],
   ['ssr-plus', 'second-brain'], ['ssr-plus', 'automation'], ['agent-skills', 'prompt-design'],
   ['agent-skills', 'automation'], ['local-first', 'second-brain'], ['second-brain', 'zettelkasten'],
@@ -49,6 +53,7 @@ const host = document.querySelector('#canvas-host');
 const labelLayer = document.querySelector('#label-layer');
 const map2d = document.querySelector('#map-2d');
 const listView = document.querySelector('#node-list-view');
+const graphLayout = document.querySelector('.graph-layout');
 const dashboardPage = document.querySelector('#dashboard-page');
 const brainPage = document.querySelector('#brain-page');
 const status = document.querySelector('#graph-status');
@@ -70,6 +75,7 @@ const labelElements = new Map();
 
 let renderer;
 let scene;
+let orbitGroup;
 let camera;
 let controls;
 let linkGeometry;
@@ -113,38 +119,124 @@ const createParticleTexture = () => {
   return new THREE.CanvasTexture(textureCanvas);
 };
 
+const createGatherPositions = (targetPositions) => {
+  const positions = new Float32Array(targetPositions.length);
+  const count = targetPositions.length / 3;
+  const goldenAngle = Math.PI * (3 - Math.sqrt(5));
+
+  for (let index = 0; index < count; index += 1) {
+    const y = 1 - ((index + 0.5) / count) * 2;
+    const ringRadius = Math.sqrt(1 - y * y);
+    const angle = goldenAngle * index;
+    const spread = 1.8 + ((index * 37) % 101) / 100 * 1.25;
+    positions[index * 3] = Math.cos(angle) * ringRadius * spread;
+    positions[index * 3 + 1] = y * spread;
+    positions[index * 3 + 2] = Math.sin(angle) * ringRadius * spread;
+  }
+
+  return positions;
+};
+
 const particleTexture = createParticleTexture();
 
 const addNode = (node, index) => {
   const topic = topics[node.topic];
+  const isCore = node.id === coreNodeId;
+  const anchor = isCore
+    ? new THREE.Vector3()
+    : new THREE.Vector3(node.x, node.y * 0.72, node.z).normalize().multiplyScalar(3 + (index % 3) * 0.48);
+  const pointCount = isCore ? 840 : 96;
+  const pointRadius = isCore ? 1.02 : 0.28;
   const geometry = new THREE.BufferGeometry();
-  geometry.setAttribute('position', new THREE.BufferAttribute(createSpherePoints(96, 0.28), 3));
+  const targetPositions = createSpherePoints(pointCount, pointRadius);
+  const startPositions = isCore ? createGatherPositions(targetPositions) : null;
+  const particlePositions = startPositions ?? targetPositions;
+  geometry.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
+  if (isCore) {
+    const colors = new Float32Array(pointCount * 3);
+    for (let particleIndex = 0; particleIndex < pointCount; particleIndex += 1) {
+      const color = particleIndex % 8 === 0
+        ? new THREE.Color('#ffffff')
+        : new THREE.Color().setHSL(0.73 + ((particleIndex * 13) % 17) / 100, 0.52, 0.62 + ((particleIndex * 29) % 35) / 100);
+      colors[particleIndex * 3] = color.r;
+      colors[particleIndex * 3 + 1] = color.g;
+      colors[particleIndex * 3 + 2] = color.b;
+    }
+    geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+  }
   const material = new THREE.PointsMaterial({
-    color: topic.color,
+    color: isCore ? '#ffffff' : topic.color,
     map: particleTexture,
-    alphaTest: 0.08,
-    size: 0.38,
+    alphaTest: isCore ? 0.015 : 0.08,
+    size: isCore ? 0.32 : 0.38,
     sizeAttenuation: true,
     transparent: true,
-    opacity: 0.08,
+    opacity: isCore ? 0.04 : 0.08,
     depthWrite: false,
-    blending: THREE.NormalBlending,
+    depthTest: !isCore,
+    vertexColors: isCore,
+    blending: isCore ? THREE.AdditiveBlending : THREE.NormalBlending,
   });
   const points = new THREE.Points(geometry, material);
-  points.position.set(node.x, node.y, node.z);
+  points.position.copy(anchor);
   points.scale.setScalar(0.01);
-  points.userData = { nodeId: node.id, introDelay: index * 75, targetScale: 0.75 + ((index * 7) % 5) * 0.09 };
+  points.userData = {
+    nodeId: node.id,
+    introDelay: index * 75,
+    targetScale: isCore ? 1 : 0.75 + ((index * 7) % 5) * 0.09,
+    anchor,
+    isCore,
+    ...(isCore ? { startPositions, targetPositions } : {}),
+  };
   points.rotation.set((index % 4) * 0.17, (index % 6) * 0.13, 0);
-  scene.add(points);
+  if (isCore) {
+    points.frustumCulled = false;
+    points.renderOrder = 10;
+    const glow = new THREE.Sprite(
+      new THREE.SpriteMaterial({
+        map: particleTexture,
+        color: topic.color,
+        transparent: true,
+        opacity: 0.16,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+        depthTest: false,
+      }),
+    );
+    glow.scale.set(4.2, 4.2, 1);
+    glow.userData.isCoreGlow = true;
+    glow.renderOrder = 11;
+    points.add(glow);
+
+    for (const [radius, tilt] of [[1.24, 0.28], [1.48, -0.46]]) {
+      const ring = new THREE.Mesh(
+        new THREE.TorusGeometry(radius, 0.009, 6, 112),
+        new THREE.MeshBasicMaterial({
+          color: topic.color,
+          transparent: true,
+          opacity: 0.52,
+          blending: THREE.AdditiveBlending,
+          depthWrite: false,
+          depthTest: false,
+        }),
+      );
+      ring.rotation.x = Math.PI / 2 + tilt;
+      ring.userData = { isCoreRing: true, rotationSpeed: radius > 1.2 ? -0.06 : 0.08 };
+      ring.renderOrder = 12;
+      points.add(ring);
+    }
+  }
+  if (isCore) scene.add(points);
+  else orbitGroup.add(points);
   nodeObjects.set(node.id, points);
 
   const label = document.createElement('button');
-  label.className = `node-label ${topic.className}`;
+  label.className = `node-label ${topic.className}${isCore ? ' is-core' : ''}`;
   label.type = 'button';
   label.dataset.nodeId = node.id;
   label.tabIndex = 0;
-  label.textContent = node.title;
-  label.setAttribute('aria-label', `${node.title}, ${node.topic}`);
+  label.textContent = isCore ? '세컨드 브레인' : node.title;
+  label.setAttribute('aria-label', `${isCore ? '세컨드 브레인 중심 노드' : node.title}, ${node.topic}`);
   label.addEventListener('click', () => selectNode(node.id));
   labelLayer.append(label);
   labelElements.set(node.id, label);
@@ -161,6 +253,8 @@ const createScene = () => {
   renderer.setClearColor(0x000000, 0);
   raycaster.params.Points.threshold = 0.28;
   scene = new THREE.Scene();
+  orbitGroup = new THREE.Group();
+  scene.add(orbitGroup);
   camera = new THREE.PerspectiveCamera(42, 1, 0.1, 100);
   camera.position.set(0, 0.2, 12.5);
 
@@ -172,8 +266,7 @@ const createScene = () => {
   controls.minDistance = 5.3;
   controls.maxDistance = 22;
   controls.target.set(0, 0, 0);
-  controls.autoRotate = !motionPaused;
-  controls.autoRotateSpeed = 0.32;
+  controls.autoRotate = false;
 
   for (let index = 0; index < nodes.length; index += 1) addNode(nodes[index], index);
 
@@ -181,7 +274,7 @@ const createScene = () => {
   linkGeometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(links.length * 6), 3));
   const linkMaterial = new THREE.LineBasicMaterial({ color: '#536588', transparent: true, opacity: 0.34 });
   linkLines = new THREE.LineSegments(linkGeometry, linkMaterial);
-  scene.add(linkLines);
+  orbitGroup.add(linkLines);
 
   const starPositions = createSpherePoints(300, 11);
   const starGeometry = new THREE.BufferGeometry();
@@ -241,9 +334,8 @@ const applyForces = (delta) => {
   for (const node of nodes) {
     const object = nodeObjects.get(node.id);
     const force = forces.get(node.id);
-    force.x += (node.x - object.position.x) * 0.022;
-    force.y += (node.y - object.position.y) * 0.022;
-    force.z += (node.z - object.position.z) * 0.022;
+    if (node.id === coreNodeId) continue;
+    force.addScaledVector(object.userData.anchor.clone().sub(object.position), 0.022);
     object.userData.velocity ??= new THREE.Vector3();
     object.userData.velocity.addScaledVector(force, timeStep).multiplyScalar(0.93);
     object.position.addScaledVector(object.userData.velocity, timeStep * 8);
@@ -257,8 +349,9 @@ const updateLinks = () => {
   for (const { source, target } of linkData) {
     const from = nodeObjects.get(source).position;
     const to = nodeObjects.get(target).position;
-    positions.setXYZ(offset, from.x, from.y, from.z);
-    positions.setXYZ(offset + 1, to.x, to.y, to.z);
+    const isVisible = (source === coreNodeId || visibleNodes.has(source)) && (target === coreNodeId || visibleNodes.has(target));
+    positions.setXYZ(offset, isVisible ? from.x : 0, isVisible ? from.y : 0, isVisible ? from.z : 0);
+    positions.setXYZ(offset + 1, isVisible ? to.x : 0, isVisible ? to.y : 0, isVisible ? to.z : 0);
     offset += 2;
   }
   positions.needsUpdate = true;
@@ -297,7 +390,9 @@ const updateLabels = () => {
     const inFront = projected.z < 1;
     const x = (projected.x * 0.5 + 0.5) * width;
     const y = (-projected.y * 0.5 + 0.5) * height;
-    label.style.transform = `translate3d(${x + 12}px, ${y}px, 0) translateY(-50%)`;
+    label.style.transform = node.id === coreNodeId
+      ? `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%)`
+      : `translate3d(${x + 12}px, ${y}px, 0) translateY(-50%)`;
     label.classList.toggle('is-selected', selectedId === node.id);
     label.classList.toggle('is-dimmed', selectedId !== null && selectedId !== node.id);
     label.classList.toggle('is-related', selectedId !== null && linkData.some(({ source, target }) => (source === selectedId && target === node.id) || (target === selectedId && source === node.id)));
@@ -317,17 +412,42 @@ const animate = (timestamp) => {
   controls.update();
 
   if (!motionPaused && elapsed < 4.5) applyForces(delta);
+  if (!motionPaused) orbitGroup.rotation.y += delta * 0.16;
 
   for (const [index, node] of nodes.entries()) {
     const object = nodeObjects.get(node.id);
-    const progress = motionPaused ? 1 : THREE.MathUtils.clamp((elapsed * 1000 - object.userData.introDelay) / 850, 0, 1);
+    const introDuration = object.userData.isCore ? 2200 : 850;
+    const progress = motionPaused ? 1 : THREE.MathUtils.clamp((elapsed * 1000 - object.userData.introDelay) / introDuration, 0, 1);
     const eased = 1 - (1 - progress) ** 3;
     const selected = selectedId === node.id;
     const dimmed = selectedId !== null && !isRelated(selectedId, node.id) && selectedId !== node.id;
-    object.scale.setScalar(object.userData.targetScale * eased * (selected ? 1.32 : 1));
-    object.material.opacity = (0.28 + eased * 0.54) * (dimmed ? 0.24 : 1);
-    object.material.size = selected ? 0.48 : 0.38;
+    if (object.userData.isCore) {
+      const positions = object.geometry.attributes.position;
+      const pulse = progress === 1 && !motionPaused ? 1 + Math.sin(elapsed * 1.8) * 0.012 : 1;
+      for (let particleIndex = 0; particleIndex < positions.count; particleIndex += 1) {
+        const offset = particleIndex * 3;
+        const start = object.userData.startPositions;
+        const target = object.userData.targetPositions;
+        positions.array[offset] = (start[offset] + (target[offset] - start[offset]) * eased) * pulse;
+        positions.array[offset + 1] = (start[offset + 1] + (target[offset + 1] - start[offset + 1]) * eased) * pulse;
+        positions.array[offset + 2] = (start[offset + 2] + (target[offset + 2] - start[offset + 2]) * eased) * pulse;
+      }
+      positions.needsUpdate = true;
+      object.scale.setScalar(object.userData.targetScale * eased * pulse * (selected ? 1.08 : 1));
+      object.material.opacity = (0.12 + eased * 0.78) * (dimmed ? 0.24 : 1);
+      object.material.size = selected ? 0.38 : 0.32;
+    } else {
+      object.scale.setScalar(object.userData.targetScale * eased * (selected ? 1.32 : 1));
+      object.material.opacity = (0.28 + eased * 0.54) * (dimmed ? 0.24 : 1);
+      object.material.size = selected ? 0.48 : 0.38;
+    }
     object.rotation.y += motionPaused ? 0 : delta * (0.1 + (index % 4) * 0.018);
+    if (object.userData.isCore) {
+      for (const child of object.children) {
+        if (child.userData.isCoreRing) child.rotation.z += motionPaused ? 0 : child.userData.rotationSpeed;
+        if (child.userData.isCoreGlow) child.material.opacity = (0.06 + eased * 0.2) * (selected ? 1.25 : 1);
+      }
+    }
   }
 
   updateLinks();
@@ -345,6 +465,7 @@ const selectNode = (id) => {
   const node = nodeById.get(id);
   if (!node) return;
   selectedId = id;
+  graphLayout.classList.add('has-selection');
   details.innerHTML = `
     <div class="selected-topic"><i class="legend-dot ${topics[node.topic].className}"></i>${node.topic}</div>
     <h3 class="selected-title">${node.title}</h3>
@@ -375,6 +496,7 @@ const selectNode = (id) => {
 
 const clearSelection = () => {
   selectedId = null;
+  graphLayout.classList.remove('has-selection');
   details.innerHTML = `
     <div class="detail-empty">
       <div class="empty-orbit" aria-hidden="true"><span></span><i></i></div>
@@ -393,17 +515,19 @@ const updateVisibleNodes = () => {
   const query = searchInput.value.trim().toLocaleLowerCase('ko');
   const topic = topicFilter.value;
   visibleNodes = new Set(nodes.filter((node) => {
+    if (node.id === coreNodeId) return true;
     const matchesText = !query || `${node.title} ${node.summary} ${node.topic} ${node.tags.join(' ')}`.toLocaleLowerCase('ko').includes(query);
     return matchesText && (topic === 'all' || topic === node.topic);
   }).map(({ id }) => id));
 
   for (const [id, object] of nodeObjects) {
-    object.visible = visibleNodes.has(id);
-    labelElements.get(id).hidden = !object.visible;
+    object.visible = id === coreNodeId || visibleNodes.has(id);
+    labelElements.get(id).hidden = id !== coreNodeId && !visibleNodes.has(id);
   }
 
-  emptyMessage.hidden = visibleNodes.size !== 0;
-  document.querySelector('#document-count').textContent = String(visibleNodes.size).padStart(2, '0');
+  const visibleDocumentCount = [...visibleNodes].filter((id) => id !== coreNodeId).length;
+  emptyMessage.hidden = visibleDocumentCount !== 0;
+  document.querySelector('#document-count').textContent = String(visibleDocumentCount).padStart(2, '0');
   document.querySelector('#footer-node-count').textContent = visibleNodes.size;
   document.querySelector('#connection-count').textContent = linkData.filter(({ source, target }) => visibleNodes.has(source) && visibleNodes.has(target)).length;
   if (selectedId && !visibleNodes.has(selectedId)) clearSelection();
@@ -412,10 +536,11 @@ const updateVisibleNodes = () => {
 };
 
 const render2d = () => {
-  const displayedNodes = nodes.filter(({ id }) => visibleNodes.has(id));
+  const displayedNodes = nodes.filter(({ id }) => id === coreNodeId || visibleNodes.has(id));
   const positions = new Map(displayedNodes.map((node, index) => {
+    if (node.id === coreNodeId) return [node.id, { x: 50, y: 50 }];
     const angle = (index / Math.max(displayedNodes.length, 1)) * Math.PI * 2;
-    const radius = 30 + (index % 3) * 5;
+    const radius = 30 + (index % 3) * 3;
     return [node.id, { x: 50 + Math.cos(angle) * radius, y: 50 + Math.sin(angle) * radius * 0.72 }];
   }));
   const lineSvg = linkData.filter(({ source, target }) => positions.has(source) && positions.has(target)).map(({ source, target }) => {
@@ -427,7 +552,8 @@ const render2d = () => {
   const circles = displayedNodes.map((node) => {
     const position = positions.get(node.id);
     const topic = topics[node.topic];
-    return `<button type="button" class="map-node ${topic.className} ${selectedId === node.id ? 'is-selected' : ''} ${selectedId && selectedId !== node.id && !isRelated(selectedId, node.id) ? 'is-dimmed' : ''}" data-node-id="${node.id}" style="left:${position.x}%;top:${position.y}%" aria-label="${node.title}, ${node.topic}"><i></i><span>${node.title}</span></button>`;
+    const isCore = node.id === coreNodeId;
+    return `<button type="button" class="map-node ${topic.className} ${isCore ? 'is-core' : ''} ${selectedId === node.id ? 'is-selected' : ''} ${selectedId && selectedId !== node.id && !isRelated(selectedId, node.id) ? 'is-dimmed' : ''}" data-node-id="${node.id}" style="left:${position.x}%;top:${position.y}%" aria-label="${isCore ? '중심 허브, 세컨드 브레인' : `${node.title}, ${node.topic}`}"><i></i><span>${isCore ? '세컨드 브레인' : node.title}</span></button>`;
   }).join('');
   map2d.innerHTML = `<svg class="map-lines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${lineSvg}</svg>${circles}`;
   map2d.querySelectorAll('.map-node').forEach((button) => button.addEventListener('click', () => selectNode(button.dataset.nodeId)));
@@ -478,10 +604,10 @@ const handleCanvasClick = (event) => {
 
 const setMotionPaused = (paused) => {
   motionPaused = paused;
-  if (controls) controls.autoRotate = !paused;
+  if (controls) controls.autoRotate = false;
   document.querySelector('#motion-toggle').setAttribute('aria-pressed', String(paused));
-  document.querySelector('#motion-toggle').setAttribute('aria-label', paused ? '자동 움직임 켜기' : '자동 움직임 끄기');
-  status.textContent = paused ? '자동 움직임을 껐습니다.' : '자동 움직임을 켰습니다.';
+  document.querySelector('#motion-toggle').setAttribute('aria-label', paused ? '중심 궤도 회전 시작' : '중심 궤도 회전 멈춤');
+  status.textContent = paused ? '중심 허브 주위의 노드 회전을 멈췄습니다.' : '중심 허브 주위의 노드 회전을 시작했습니다.';
 };
 
 const dashboardPeriods = {
@@ -540,6 +666,17 @@ const updateDashboard = () => {
   renderActivityChart();
 };
 
+const updateDashboardViewTime = () => {
+  const now = new Date();
+  const time = document.querySelector('#dashboard-view-time');
+  time.dateTime = now.toISOString();
+  time.textContent = `화면 확인 시각 ${new Intl.DateTimeFormat('ko-KR', { hour: '2-digit', minute: '2-digit' }).format(now)}`;
+};
+
+const showPrototypeNotice = (message) => {
+  document.querySelector('#dashboard-status').textContent = message;
+};
+
 const setPageFromHash = () => {
   const showDashboard = location.hash !== '#brain';
   dashboardPage.hidden = !showDashboard;
@@ -565,6 +702,16 @@ document.querySelector('#compare-period').addEventListener('click', () => {
   comparePeriod = !comparePeriod;
   updateDashboard();
 });
+document.querySelector('#connect-folder').addEventListener('click', () => {
+  showPrototypeNotice('폴더 연결은 제품 앱이 아직 구현되지 않아 사용할 수 없습니다. 현재 대시보드는 샘플 데이터만 표시합니다.');
+});
+document.querySelector('#browse-skills').addEventListener('click', () => {
+  showPrototypeNotice('스킬 검색·실행은 제품 앱이 아직 구현되지 않아 사용할 수 없습니다. 아래 실행 목록은 샘플 기록입니다.');
+});
+document.querySelector('#refresh-dashboard').addEventListener('click', () => {
+  updateDashboardViewTime();
+  showPrototypeNotice('화면 표시 시각을 갱신했습니다. 샘플 데이터는 새로 불러오지 않았습니다.');
+});
 window.addEventListener('hashchange', setPageFromHash);
 document.querySelectorAll('.view-button').forEach((button) => button.addEventListener('click', () => setView(button.dataset.view)));
 document.querySelector('#clear-selection').addEventListener('click', clearSelection);
@@ -575,6 +722,7 @@ document.querySelector('#reset-camera').addEventListener('click', () => {
   if (!camera || !controls) return;
   camera.position.set(0, 0.2, 12.5);
   controls.target.set(0, 0, 0);
+  orbitGroup.rotation.set(0, 0, 0);
   controls.update();
 });
 document.querySelector('#motion-toggle').addEventListener('click', () => setMotionPaused(!motionPaused));
@@ -599,7 +747,7 @@ document.addEventListener('keydown', (event) => {
 reducedMotion.addEventListener('change', (event) => setMotionPaused(event.matches));
 new ResizeObserver(resizeRenderer).observe(host);
 
-document.querySelector('#document-count').textContent = String(nodes.length).padStart(2, '0');
+document.querySelector('#document-count').textContent = String(nodes.length - 1).padStart(2, '0');
 document.querySelector('#connection-count').textContent = String(links.length).padStart(2, '0');
 document.querySelector('#footer-node-count').textContent = nodes.length;
 
@@ -614,4 +762,5 @@ if (createScene()) {
 
 renderList();
 updateDashboard();
+updateDashboardViewTime();
 setPageFromHash();

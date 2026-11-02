@@ -151,6 +151,18 @@
           </section>
 
           <div class="dashboard-disclaimer"><span aria-hidden="true">⌂</span> 이 화면의 지표와 기록은 화면 확인을 위한 샘플이며, 실제 파일·실행·연결 상태를 나타내지 않습니다.</div>
+          <section class="dashboard-quick-actions" aria-label="빠른 작업">
+            <div class="quick-actions-copy"><span class="card-eyebrow">QUICK ACTIONS</span><strong>다음 작업으로 이어가기</strong></div>
+            <div class="quick-actions-buttons">
+              <button id="connect-folder" class="quick-action-button" type="button"><span aria-hidden="true">＋</span> 폴더 연결</button>
+              <button id="browse-skills" class="quick-action-button" type="button"><span aria-hidden="true">✳</span> 스킬 찾기</button>
+              <a class="quick-action-button quick-action-link" href="#brain"><span aria-hidden="true">◉</span> 지식 탐색</a>
+            </div>
+          </section>
+          <div class="dashboard-bottomline">
+            <p id="dashboard-status" class="dashboard-status" role="status" aria-live="polite">실제 폴더·스킬은 연결되지 않았습니다. 화면 예시용 샘플 데이터입니다.</p>
+            <div class="dashboard-refresh"><span id="dashboard-view-time">화면 확인 시각 —</span><button id="refresh-dashboard" type="button">시각 갱신 <span aria-hidden="true">↻</span></button></div>
+          </div>
         </section>
 
         <div id="brain-page">
@@ -163,7 +175,7 @@
           <div class="heading-stats" aria-label="지식 베이스 통계">
             <div><strong id="document-count">18</strong><span>자료</span></div>
             <i></i>
-            <div><strong id="connection-count">24</strong><span>연결</span></div>
+            <div><strong id="connection-count">28</strong><span>연결</span></div>
             <i></i>
             <div><strong>04</strong><span>주제</span></div>
           </div>
@@ -203,7 +215,7 @@
                 <div class="live-label"><span class="pulse-dot"></span><span id="view-caption">INTERACTIVE KNOWLEDGE MAP</span></div>
                 <div class="stage-actions">
                   <button class="small-icon-button" id="reset-camera" type="button" aria-label="그래프 시점 초기화" title="시점 초기화">⟲</button>
-                  <button class="small-icon-button" id="motion-toggle" type="button" aria-label="자동 움직임 끄기" aria-pressed="false" title="동작 줄이기">◌</button>
+                  <button class="small-icon-button" id="motion-toggle" type="button" aria-label="중심 궤도 회전 멈춤" aria-pressed="false" title="중심 궤도 회전">◌</button>
                   <button class="small-icon-button" id="fullscreen-toggle" type="button" aria-label="그래프 크게 보기" title="크게 보기">⛶</button>
                 </div>
               </div>
@@ -223,7 +235,7 @@
                   <span><i class="legend-dot flow"></i>워크플로</span>
                   <span><i class="legend-dot ideas"></i>아이디어</span>
                 </div>
-                <span class="gesture-hint" id="gesture-hint"><span aria-hidden="true">↔</span> 드래그하여 회전 <span>·</span> 스크롤하여 확대</span>
+                <span class="gesture-hint" id="gesture-hint"><span aria-hidden="true">↔</span> 노드는 중심 허브 주위로 회전 <span>·</span> 드래그하여 시점 이동</span>
               </div>
               <div id="graph-status" class="visually-hidden" role="status" aria-live="polite"></div>
             </section>

@@ -23,7 +23,7 @@
 - 측정 전 임의의 수치나 성능 달성을 완료로 기록
 
 ## 현재 검증
-- `spikes/brain-graph/`에서 샘플 노드 18개·관계 24개의 Three.js 그래프를 구현했다.
+- `spikes/brain-graph/`에서 샘플 자료 18개와 중앙 허브를 포함한 19개 노드·관계 28개의 Three.js 그래프를 구현했다.
 - `npm run build` 성공. Three.js 번들은 minify 후 574.93 kB( gzip 144.38 kB)이며 Vite의 500 kB 청크 경고가 남아 있다.
 - 브라우저 스모크 테스트에서 Raycaster 선택, 2D·목록 전환, 검색·필터, 키보드 포커스 이동, `prefers-reduced-motion` 전환을 확인했다.
 - WebGL 컨텍스트 생성 차단 테스트에서 2D 대체 화면과 안내 상태를 확인했다. 대상 Windows 기기 성능 측정과 표시 상한 확정은 아직 진행하지 않았으므로 본 task는 계속 진행 중이다.
