@@ -18,7 +18,7 @@
 | task-014 | 실행 기록·대시보드 (S-06·S-02, A-12·A-15) | W4 | task-013 | 보통 | builder | 대기 |
 | task-015 | 첫 실행 점검·설정 (S-01·S-08, A-01·A-17) | W4 | task-012, task-009 | 높음 | builder | 대기 |
 | task-016 | 1차 QA·자기 사용 검증(P1~P3·P5) | W5 | task-010, task-014, task-015 | 보통 | tester | 대기 |
-| task-017 | Second Brain 3D 성능 스파이크·상한 확정 | W0 | task-003 | 높음 | builder + designer | 대기 |
+| task-017 | Second Brain 3D 성능 스파이크·상한 확정 | W0 | task-003 | 높음 | builder + designer | 진행 |
 
 상태: 대기 / 진행 / 완료 / 보류
 

@@ -29,8 +29,8 @@ SSR+(Skill · Second Brain · Routine · Extension) 개인 AI 업무 시스템�
 | 기획(PRD) | MVP 수직 흐름과 후속 범위, 성공 지표, 보안 L1 정의 — `docs/01_PRD.md` |
 | UX | 화면 8개 · 흐름 4개, Second Brain 3D와 2D·목록 대체 경로 — `docs/03_SCREENS_UX.md` |
 | 기술 설계 | 아키텍처 · IPC 17개 · 데이터 모델 13개 · ADR 6건(범위 ADR-0006, 스택 미확정) |
-| W0 선행 검증 | 미착수 — 스택·CLI·보안·디자인·3D 성능 (`task-003~006`, `task-017`) |
-| 구현 | 미착수 — W0 완료 후 `task-007`부터 |
+| W0 선행 검증 | 진행 중 — Three.js 샘플 그래프 프로토타입 구현 중 (`task-017`), 나머지 스택·CLI·보안·디자인 검증 대기 |
+| 구현 | 제품 앱은 미착수 — 대시보드·Second Brain 화면 프로토타입(샘플 전용)을 [`spikes/brain-graph/`](spikes/brain-graph/)에서 검증 중 |
 
 제한: 앱 구현 전 W0의 스택·CLI 권한(T-01~T-03)·보안·디자인·3D 성능 확인이 필요합니다. 미결 질문은 [`docs/01_PRD.md#7`](docs/01_PRD.md)에 있습니다.
 
@@ -51,6 +51,8 @@ SSR+(Skill · Second Brain · Routine · Extension) 개인 AI 업무 시스템�
 ### 구현된 주요 항목
 - [x] NOMAD 멀티에이전트 환경 적용
 - [x] 1차 MVP 기획·설계 문서와 화면 사양
+- [ ] 대시보드 UI 프로토타입 — 샘플 데이터 전용, 제품 데이터·실행 기록 미연동
+- [ ] Second Brain Three.js 스파이크 검증 — [`spikes/brain-graph/`](spikes/brain-graph/)
 
 ### 다음 개발 단계
 - [ ] 스택·CLI·보안·디자인·3D 성능 선행 검증 — `task-003~006`, `task-017`
