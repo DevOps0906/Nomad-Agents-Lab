@@ -10,8 +10,7 @@ flowchart TB
 
     subgraph brain["Second Brain 영역"]
         sb1["1차 · 로컬 폴더 색인·검색 (S-03)"]
-        sb2["1차 · 2D 관계 그래프·문서 미리보기 (S-03)"]
-        sb3["2차 · 3D 그래프 뷰"]
+        sb2["1차 · 3D 그래프 + 2D·목록 대체 경로·문서 미리보기 (S-03)"]
         sb4["3차 · 임베딩 관계"]
     end
 
@@ -28,7 +27,7 @@ flowchart TB
     subgraph common["공통"]
         cm1["1차 · 첫 실행 점검 (S-01)"]
         cm2["1차 · 대시보드 (S-02)"]
-        cm3["1차 · 실행 기록·상세 (S-06·S-07)"]
+        cm3["1차 · 실행 기록·상세·외부 처리 동의 (S-05~S-07)"]
         cm4["1차 · 최소 설정 (S-08)"]
         cm5["2차 · 가져오기·내보내기"]
     end
@@ -50,7 +49,8 @@ flowchart TB
         adr1["ADR-0001 AI 엔진: Claude Code CLI headless 실행"]
         adr2["ADR-0002 스킬 형식: SKILL.md 호환 폴더"]
         adr3["ADR-0003 그래프: 문서=노드, 링크·태그=관계 (결정적 추출)"]
-        adr4["ADR-0004 MVP: 수직 슬라이스 1차→2차→3차"]
+        adr4["ADR-0004 이전 범위 (ADR-0006으로 대체)"]
+        adr6["ADR-0006 균형 MVP: 로컬 자료→3D/대체 탐색→승인 실행→기록"]
     end
 
     adr1 -.-> skill
@@ -63,5 +63,6 @@ flowchart TB
     classDef p2 fill:#fef3c7,stroke:#b45309,color:#422006
     classDef p3 fill:#f3f4f6,stroke:#6b7280,color:#1f2937,stroke-dasharray:4 3
     class sk1,sk2,sk3,sb1,sb2,cm1,cm2,cm3,cm4 p1
-    class sb3,rt1,ex1,cm5 p2
+    class rt1,ex1,cm5 p2
     class sk4,sb4,rt2,ex3 p3
+    adr6 -.-> root

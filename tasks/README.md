@@ -3,27 +3,28 @@
 | 번호 | 제목 | 웨이브 | 선행 | 위험도 | 담당 | 상태 |
 |---|---|---|---|---|---|---|
 | task-001 | NOMAD 멀티에이전트 환경 적용 | W1 | — | 낮음 | builder | 완료 |
-| task-002 | 린 사전 검증(인터뷰 P4·착수 승인) | W0 | — | 낮음 | 팀장 | 대기 |
-| task-003 | 스택 버전 확정·ADR-0005 채택 | W0 | task-002 | 높음 | 팀장 | 보류(task-002 통과 후) |
-| task-004 | 기술 검증 T-01~T-03 (Claude Code CLI) | W0 | task-003 | 높음 | builder | 보류(task-002 통과 후) |
-| task-005 | 보안 기본 설정(L1) | W0 | task-003 | 낮음 | builder | 보류(task-002 통과 후) |
-| task-006 | 디자인 토큰·DESIGN.md (반응형 3구간) | W0 | task-002 | 낮음 | designer | 보류(task-002 통과 후) |
-| task-007 | Electron 앱 뼈대·보안 하드닝 | W1 | task-003, task-004 | 높음 | builder | 보류(task-002 통과 후) |
-| task-008 | SQLite 스키마·마이그레이션·boot_config | W1 | task-007 | 높음 | builder | 보류(task-002 통과 후) |
-| task-009 | 로컬 폴더 연결·색인 (A-02·A-03) | W2 | task-008 | 높음 | builder | 보류(task-002 통과 후) |
-| task-010 | Second Brain: 검색·2D 그래프·미리보기 (S-03) | W2 | task-009, task-006 | 높음 | builder | 보류(task-002 통과 후) |
-| task-011 | 스킬 색인·목록 (S-04, A-07·A-08) | W3 | task-008 | 보통 | builder | 보류(task-002 통과 후) |
-| task-012 | Claude Code 어댑터·실행 관리자·권한 브리지 | W3 | task-004, task-008 | 높음 | builder | 보류(task-002 통과 후) |
-| task-013 | 실행 승인·기억한 허용·실행 상세 (S-05·S-07, A-14) | W3 | task-011, task-012 | 높음 | builder | 보류(task-002 통과 후) |
-| task-014 | 실행 기록·대시보드 (S-06·S-02, A-12·A-15) | W4 | task-013 | 보통 | builder | 보류(task-002 통과 후) |
-| task-015 | 첫 실행 점검·설정 (S-01·S-08, A-01·A-17) | W4 | task-012, task-009 | 높음 | builder | 보류(task-002 통과 후) |
-| task-016 | 1차 QA·자기 사용 검증(P1~P3·P5) | W5 | task-014, task-015 | 보통 | tester | 보류(task-002 통과 후) |
+| task-002 | 알파 후 외부 사용자 인터뷰(P4) | W6 | task-016 | 낮음 | 팀장 | 대기(외부 사용자 확대 전) |
+| task-003 | 스택 버전 확정·ADR-0005 채택 | W0 | — | 높음 | 팀장 | 대기 |
+| task-004 | 기술 검증 T-01~T-03 (Claude Code CLI) | W0 | — | 높음 | builder | 대기 |
+| task-005 | 보안 기본 설정(L1) | W0 | — | 낮음 | builder | 대기 |
+| task-006 | 디자인 토큰·DESIGN.md (데스크톱 우선) | W0 | task-003 | 낮음 | designer | 대기 |
+| task-007 | Electron 앱 뼈대·보안 하드닝 | W1 | task-003, task-004, task-005, task-006 | 높음 | builder | 대기(W0 완료 후) |
+| task-008 | SQLite 스키마·마이그레이션·boot_config | W1 | task-007 | 높음 | builder | 대기 |
+| task-009 | 로컬 폴더 연결·색인 (A-02·A-03) | W2 | task-008 | 높음 | builder | 대기 |
+| task-010 | Second Brain: 검색·3D 그래프·대체 경로·미리보기 (S-03) | W2 | task-009, task-006, task-017 | 높음 | builder | 대기 |
+| task-011 | 스킬 색인·목록 (S-04, A-07·A-08) | W3 | task-008 | 보통 | builder | 대기 |
+| task-012 | Claude Code 어댑터·실행 관리자·권한 브리지 | W3 | task-004, task-008 | 높음 | builder | 대기 |
+| task-013 | 실행 승인·외부 처리 동의·실행 상세 (S-05·S-07, A-14) | W3 | task-011, task-012 | 높음 | builder | 대기 |
+| task-014 | 실행 기록·대시보드 (S-06·S-02, A-12·A-15) | W4 | task-013 | 보통 | builder | 대기 |
+| task-015 | 첫 실행 점검·설정 (S-01·S-08, A-01·A-17) | W4 | task-012, task-009 | 높음 | builder | 대기 |
+| task-016 | 1차 QA·자기 사용 검증(P1~P3·P5) | W5 | task-010, task-014, task-015 | 보통 | tester | 대기 |
+| task-017 | Second Brain 3D 성능 스파이크·상한 확정 | W0 | task-003 | 높음 | builder + designer | 대기 |
 
 상태: 대기 / 진행 / 완료 / 보류
 
-- 웨이브: W0 착수 전 검증·결정 → W1 기반 → W2 자료 → W3 스킬 실행 → W4 기록·설정 → W5 QA·자기 사용 검증. 1차 MVP 범위는 `docs/adr/0004`.
-- 린 게이트: task-002(P4·착수 승인) 통과 전 개발 작업은 보류. P1~P3·P5는 앱이 있어야 측정 가능하므로 task-016에서 판정.
-- 수익·검증 한 줄: 1차는 본인용 무료 도구로 자기 사용(7일) + 인터뷰 5명으로 검증, 수익 모델은 PRD Q9에서 2차 전 결정.
+- 웨이브: W0 기술·보안·디자인·3D 검증 → W1 기반 → W2 자료·Second Brain → W3 스킬 실행 → W4 기록·설정 → W5 QA·본인 알파 → W6 외부 인터뷰. 1차 MVP 범위는 `docs/adr/0006`.
+- 린 게이트: 사용자 승인으로 본인 알파 개발 착수. P1~P3·P5는 task-016에서 판정하며, P4 인터뷰(task-002)는 외부 사용자 확대 전 수행한다.
+- 수익·검증 한 줄: 1차는 본인용 무료 도구로 7일 자기 사용 후 평가, 외부 사용자 확대 전 인터뷰 5명. 수익 모델은 PRD Q9에서 결정.
 
 ## 발견한 문제 (범위 밖 — 나중 작업 후보)
 | 날짜 | 위치 | 내용 | 제안 |

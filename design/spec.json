@@ -1,16 +1,14 @@
 {
  "version": "1",
- "generated": "2026-11-02T15:59:00+00:00",
+ "generated": "2026-11-02T18:48:25+00:00",
  "docs": "docs",
  "tokens": "기본 시작 토큰(프로젝트 토큰 없음)",
  "sources": {
-  "docs/03_SCREENS_UX.md": "b2ca257703a5",
-  "docs/04_API.md": "a6195fd8f060",
-  "docs/05_DATA_MODEL.md": "5aa3d1eb2db6"
+  "docs/03_SCREENS_UX.md": "fae417c99d9a",
+  "docs/04_API.md": "4d72581e89dd",
+  "docs/05_DATA_MODEL.md": "ce2d66035026"
  },
- "changed": [
-  "S-01"
- ],
+ "changed": [],
  "removed": [],
  "screens": {
   "S-01": {
@@ -242,7 +240,7 @@
     "할 일·알림(지표가 행동으로 이어지게)"
    ],
    "states_missing": [],
-   "hash": "9b406b18cea9",
+   "hash": "761f10b3ad1c",
    "wireframe": "design/wireframes/S-02.html"
   },
   "S-03": {
@@ -281,19 +279,26 @@
      ]
     },
     {
-     "type": "chart",
-     "label": "2D 관계 그래프(노드=문서·태그·폴더·없는 문서",
+     "type": "view",
+     "label": "3D 그래프·2D 그래프·목록",
      "items": [
-      "2D 관계 그래프(노드=문서",
-      "태그",
-      "폴더",
-      "없는 문서"
+      "3D 그래프",
+      "2D 그래프",
+      "목록"
      ]
     },
     {
-     "type": "범례·표시 수)",
-     "label": "",
-     "items": []
+     "type": "image",
+     "label": "검색·필터·중심 노드 기준의 제한된 관계 그래프(문서·태그·폴더·없는 문서 노드와 범례·표시 수)",
+     "items": [
+      "검색",
+      "필터",
+      "중심 노드 기준의 제한된 관계 그래프(문서",
+      "태그",
+      "폴더",
+      "없는 문서 노드와 범례",
+      "표시 수)"
+     ]
     },
     {
      "type": "button",
@@ -381,7 +386,7 @@
     "활동·변경 이력"
    ],
    "states_missing": [],
-   "hash": "6076c17f3165",
+   "hash": "e3a320d4f4af",
    "wireframe": "design/wireframes/S-03.html"
   },
   "S-04": {
@@ -478,7 +483,7 @@
     "저장된 보기·열 설정"
    ],
    "states_missing": [],
-   "hash": "58c44949fa32",
+   "hash": "3ae1e3585377",
    "wireframe": "design/wireframes/S-04.html"
   },
   "S-05": {
@@ -486,7 +491,7 @@
    "name": "스킬 실행 승인",
    "type_raw": "폼",
    "route": "/skills/:name/run",
-   "purpose": "입력과 접근 범위를 확인하고 실행 승인",
+   "purpose": "입력·접근 범위·외부 AI 처리를 확인하고 이번 실행에 동의",
    "blocks": [
     {
      "type": "header",
@@ -500,11 +505,20 @@
     },
     {
      "type": "form",
-     "label": "스킬 입력값*·접근 폴더*·허용 도구*",
+     "label": "스킬 입력값*·접근 폴더*·허용 도구*·이번 실행 외부 AI 처리 동의 체크박스*",
      "items": [
       "스킬 입력값*",
       "접근 폴더*",
-      "허용 도구*"
+      "허용 도구*",
+      "이번 실행 외부 AI 처리 동의 체크박스*"
+     ]
+    },
+    {
+     "type": "alert",
+     "label": "Claude Code에 설정된 원격 AI 서비스와 앱이 확인 가능한 서비스·계정 정보를 표시합니다. 확인할 수 없는 정보는 그 사실을 표시합니다. 승인 폴더의 자료 중 모델이 읽을 정확한 파일 목록은 사전 확정되지 않을 수 있습니다.",
+     "items": [
+      "Claude Code에 설정된 원격 AI 서비스와 앱이 확인 가능한 서비스",
+      "계정 정보를 표시합니다. 확인할 수 없는 정보는 그 사실을 표시합니다. 승인 폴더의 자료 중 모델이 읽을 정확한 파일 목록은 사전 확정되지 않을 수 있습니다."
      ]
     },
     {
@@ -515,33 +529,25 @@
      ]
     },
     {
-     "type": "text",
-     "label": "예상 변경·외부 전송 대상",
-     "items": [
-      "예상 변경",
-      "외부 전송 대상"
-     ]
-    },
-    {
      "type": "tabs",
-     "label": "이번 한 번·이 스킬에 이 범위 기억",
+     "label": "접근 범위 이번 한 번·이 스킬에 이 범위 기억",
      "items": [
-      "이번 한 번",
+      "접근 범위 이번 한 번",
       "이 스킬에 이 범위 기억"
      ]
     },
     {
      "type": "text",
-     "label": "범위가 넓어지면 다시 묻습니다",
+     "label": "기억한 접근 허용은 외부 처리 동의를 대신하지 않으며 범위가 넓어지면 다시 묻습니다",
      "items": [
-      "범위가 넓어지면 다시 묻습니다"
+      "기억한 접근 허용은 외부 처리 동의를 대신하지 않으며 범위가 넓어지면 다시 묻습니다"
      ]
     },
     {
      "type": "button",
-     "label": "승인하고 실행",
+     "label": "동의하고 실행(체크 전 비활성)",
      "items": [
-      "승인하고 실행"
+      "동의하고 실행(체크 전 비활성)"
      ]
     },
     {
@@ -554,7 +560,8 @@
    ],
    "data": [
     "skills",
-    "grants"
+    "grants",
+    "runs"
    ],
    "api": [
     "A-08",
@@ -574,7 +581,7 @@
     "임시 저장(긴 폼)"
    ],
    "states_missing": [],
-   "hash": "f31739dd3b24",
+   "hash": "aa7abe068b46",
    "wireframe": "design/wireframes/S-05.html"
   },
   "S-06": {
@@ -655,7 +662,7 @@
     "저장된 보기·열 설정"
    ],
    "states_missing": [],
-   "hash": "4c9d1cf43959",
+   "hash": "c4ca4592a66f",
    "wireframe": "design/wireframes/S-06.html"
   },
   "S-07": {
@@ -769,7 +776,7 @@
     "관련 항목 탭"
    ],
    "states_missing": [],
-   "hash": "b9a739873d9c",
+   "hash": "c35968515267",
    "wireframe": "design/wireframes/S-07.html"
   },
   "S-08": {
@@ -849,9 +856,10 @@
     },
     {
      "type": "text",
-     "label": "추출 텍스트 사본 저장 고지",
+     "label": "추출 텍스트 사본 저장·Claude Code 원격 처리 고지",
      "items": [
-      "추출 텍스트 사본 저장 고지"
+      "추출 텍스트 사본 저장",
+      "Claude Code 원격 처리 고지"
      ]
     },
     {
@@ -870,9 +878,9 @@
     },
     {
      "type": "table",
-     "label": "기억한 허용(스킬·범위·기억 시각)",
+     "label": "기억한 접근 허용(스킬·범위·기억 시각)",
      "items": [
-      "기억한 허용(스킬",
+      "기억한 접근 허용(스킬",
       "범위",
       "기억 시각)"
      ]
@@ -916,7 +924,7 @@
     "위험 작업 구역(삭제·탈퇴) 분리·확인"
    ],
    "states_missing": [],
-   "hash": "d2161fb1dbf2",
+   "hash": "a3b508bd48ac",
    "wireframe": "design/wireframes/S-08.html"
   }
  },
@@ -936,7 +944,7 @@
   "S-03": {
    "빈": "연결 폴더 없음: 폴더 연결 버튼 / 링크·태그가 적음: 위키링크·태그 쓰는 법 안내 / 검색 결과 0건: 필터 해제",
    "로딩": "그래프 자리 스켈레톤 + 색인 중 표시",
-   "오류": "그래프 불러오기 실패: 목록 보기로 계속 + 다시 시도 / 없는 문서 노드는 \"없는 문서\" 표시",
+   "오류": "3D/WebGL 오류·저사양·동작 감소: 2D 또는 목록 보기로 계속 + 다시 시도 / 없는 문서 노드는 \"없는 문서\" 표시",
    "성공": "—"
   },
   "S-04": {
@@ -946,10 +954,10 @@
    "성공": "—"
   },
   "S-05": {
-   "빈": "입력 필요 항목 없음: 범위 확인만 표시",
+   "빈": "입력 필요 항목 없음: 범위 확인만 표시 / 동의 전 실행 버튼 비활성",
    "로딩": "승인 처리 중(버튼 비활성)",
-   "오류": "필수 입력 누락·범위 확인 실패: 필드별 오류 문구",
-   "성공": "실행 시작 → S-07로 이동"
+   "오류": "필수 입력 누락·범위 확인 실패·외부 처리 미동의: 이유와 함께 실행 차단",
+   "성공": "동의·실행 시작 → S-07로 이동"
   },
   "S-06": {
    "빈": "실행 기록 없음: 스킬 목록으로 가기",
@@ -1083,10 +1091,10 @@
     "ID": "A-05",
     "메서드": "invoke",
     "경로": "graph.get",
-    "입력": "필터(소스·태그·형식·관계 종류), 중심 문서 ID?, 깊이",
-    "출력": "노드(문서·태그·폴더·없는 문서)·관계(종류 `link`·`tag`·`folder`·`manual`)·분야 색상 키",
+    "입력": "필터(소스·태그·형식·관계 종류), 중심 문서 ID?, 깊이, 페이지/이웃 제한",
+    "출력": "3D·2D·목록이 공유하는 제한된 부분 그래프: 노드(문서·태그·폴더·없는 문서)·관계(종류 `link`·`tag`·`folder`·`manual`)·분야 색상 키",
     "권한": "DB 읽기",
-    "오류": "E_NOT_FOUND`, `E_VALIDATION`(노드 수 상한 초과 — 상한 팀장 결정 필요)"
+    "오류": "E_NOT_FOUND`, `E_VALIDATION"
    },
    "source": "docs/04_API.md"
   },
@@ -1143,10 +1151,10 @@
     "ID": "A-09",
     "메서드": "invoke",
     "경로": "runs.start",
-    "입력": "스킬 `name`, 입력 값, 범위(폴더 ID 목록·도구 목록 — 1차 허용 도구만, [02#3](02_ARCHITECTURE.md)), `remember`(이번만/기억), `retryOf?",
-    "출력": "runId",
-    "권한": "프로세스 실행(Claude Code 어댑터), DB 쓰기",
-    "오류": "E_CLAUDE_MISSING`, `E_CLAUDE_AUTH`, `E_OUT_OF_SCOPE`(폴더가 연결 소스 아님), `E_VALIDATION`(필수 입력 누락·1차 금지 도구)"
+    "입력": "스킬 `name`, 입력 값, 범위(폴더 ID 목록·도구 목록 — 1차 허용 도구만, [02#3](02_ARCHITECTURE.md)), `externalProcessingConsent: true`(이번 실행에만 유효), `remember`(접근 범위 이번만/기억), `retryOf?",
+    "출력": "runId`; Main은 동의 시각·서비스 표시·실행 범위를 기록",
+    "권한": "동의 확인 후 프로세스 실행(Claude Code 어댑터), DB 쓰기",
+    "오류": "E_CONSENT_REQUIRED`, `E_CLAUDE_MISSING`, `E_CLAUDE_AUTH`, `E_OUT_OF_SCOPE`(폴더가 연결 소스 아님), `E_VALIDATION`(필수 입력 누락·1차 금지 도구)"
    },
    "source": "docs/04_API.md"
   },
@@ -1343,9 +1351,9 @@
    "row": {
     "테이블": "runs",
     "목적": "스킬 실행 1건",
-    "주요 컬럼": "id`, `skill_name`, `skill_hash`, `input_json`, `scope_json`(폴더·도구·MCP), `grant_id`→grants(NULL), `retry_of`→runs(NULL), `status`(`starting`·`running`·`waiting_permission`·`succeeded`·`partial`·`failed`·`cancelled`), `error_code`, `claude_version`, `session_id`, `exit_code`, `result_summary`, `started_at`, `ended_at",
+    "주요 컬럼": "id`, `skill_name`, `skill_hash`, `input_json`, `scope_json`(폴더·도구·MCP), `provider_label`, `external_processing_consent_at`, `grant_id`→grants(NULL), `retry_of`→runs(NULL), `status`(`starting`·`running`·`waiting_permission`·`succeeded`·`partial`·`failed`·`cancelled`), `error_code`, `claude_version`, `session_id`, `exit_code`, `result_summary`, `started_at`, `ended_at",
     "RLS 기준": "로컬 단일 사용자—해당 없음",
-    "비고": "input_json` 원문 저장·마스킹 여부 — [PRD Q6](01_PRD.md). 앱 재시작 시 `starting`·`running`·`waiting_permission`은 모두 `failed`(`error_code`=`interrupted`)로 정리. 성공률 정의: [`00_LEAN.md#통과 기준`](00_LEAN.md)"
+    "비고": "매 실행의 외부 처리 동의가 없으면 실행 불가. `provider_label`은 Claude Code에 설정된 서비스에 관해 UI가 고지한 값. 동의 시각·실행 범위 외에 문서 본문은 동의 로그에 복제하지 않는다. `input_json` 원문 저장·마스킹 여부 — [PRD Q6](01_PRD.md). 앱 재시작 시 `starting`·`running`·`waiting_permission`은 모두 `failed`(`error_code`=`interrupted`)로 정리. 성공률 정의: [`00_LEAN.md#통과 기준`](00_LEAN.md)"
    },
    "source": "docs/05_DATA_MODEL.md"
   },
@@ -1354,9 +1362,9 @@
    "row": {
     "테이블": "run_events",
     "목적": "실행 이벤트 스트림",
-    "주요 컬럼": "run_id`→runs, `seq`, `ts`, `type`(`system`·`assistant`·`tool_use`·`tool_result`·`permission_request`·`permission_response`·`result`·`stderr`·`error`), `request_id`(권한 요청 짝), `payload_json",
+    "주요 컬럼": "run_id`→runs, `seq`, `ts`, `type`(`external_processing_consent`·`system`·`assistant`·`tool_use`·`tool_result`·`permission_request`·`permission_response`·`result`·`stderr`·`error`), `request_id`(권한 요청 짝), `payload_json",
     "RLS 기준": "로컬 단일 사용자—해당 없음",
-    "비고": "PK(`run_id`,`seq`). stream-json 줄 → 1행. 보존 기간 경과 시 일괄 삭제(기본값 [PRD Q6](01_PRD.md))"
+    "비고": "PK(`run_id`,`seq`). 동의 이벤트는 표시한 서비스·승인 범위·동의 시각을 기록하고 본문을 넣지 않는다. stream-json 줄 → 1행. 보존 기간 경과 시 일괄 삭제(기본값 [PRD Q6](01_PRD.md))"
    },
    "source": "docs/05_DATA_MODEL.md"
   },
@@ -1364,10 +1372,10 @@
    "name": "grants",
    "row": {
     "테이블": "grants",
-    "목적": "기억한 허용(스킬별 범위)",
+    "목적": "기억한 접근 허용(스킬별 범위)",
     "주요 컬럼": "id`, `skill_name`, `folders_json`(source id 목록), `tools_json`, `mcp_json`, `created_at`, `last_used_at`, `revoked_at",
     "RLS 기준": "로컬 단일 사용자—해당 없음",
-    "비고": "새 실행 범위 ⊆ 허용 범위일 때만 재사용, 넓어지면 다시 질의(ADR-0004). 해제는 `revoked_at` 기록. `mcp_json`은 2차용으로 1차는 항상 빈 값(1차는 MCP 사용 안 함, [`02_ARCHITECTURE.md`](02_ARCHITECTURE.md))"
+    "비고": "새 실행 범위 ⊆ 허용 범위일 때만 재사용, 넓어지면 다시 질의(ADR-0006). 매 실행 외부 처리 동의는 절대 grants에 저장하거나 대체하지 않는다. 해제는 `revoked_at` 기록. `mcp_json`은 후속용으로 1차는 항상 빈 값(1차는 MCP 사용 안 함, [`02_ARCHITECTURE.md`](02_ARCHITECTURE.md))"
    },
    "source": "docs/05_DATA_MODEL.md"
   },
@@ -1431,11 +1439,6 @@
    "🟡",
    "S-03",
    "Second Brain 권장: 관련 항목 탭, 활동·변경 이력"
-  ],
-  [
-   "ℹ️",
-   "S-03",
-   "모르는 블록(회색 상자로 표시): 범례·표시 수)"
   ],
   [
    "🟡",
