@@ -1,0 +1,61 @@
+sequenceDiagram
+    autonumber
+    participant R as "Renderer (S-05 실행 설정 · S-07 승인)"
+    participant M as "실행 관리자"
+    participant A as "Claude Code 어댑터"
+    participant C as "claude CLI (-p stream-json)"
+    participant B as "권한 브리지 (로컬 MCP)"
+    participant D as "run_events (SQLite)"
+
+    R->>M: A-09 runs.start (스킬, 입력, 범위, remember)
+    M->>M: 범위 확정 · 기억한 허용 대조
+    M->>D: 실행 행 생성 (상태 running)
+    M-->>R: runId
+    R->>M: A-13 runs.events 구독 (runId)
+    M->>A: 확정된 범위 객체 1개 전달
+    Note over A,C: 1차 허용 도구: Read · Grep · Glob<br/>Write · Edit는 실행별 출력 폴더 안에서만<br/>Bash · WebFetch · WebSearch는 --disallowedTools로 금지
+    A->>C: spawn (인자 배열, 셸 없음, --strict-mcp-config) · 프롬프트는 stdin
+    Note over C,B: MCP는 앱이 만든 설정 1개만 등록<br/>(권한 브리지 1개, 사용자 MCP 차단)
+
+    loop 출력 줄마다
+        C-->>A: stream-json 한 줄
+        A->>M: 파싱된 이벤트 (파싱 실패 줄은 error)
+        M->>D: 이벤트 기록 (seq 순)
+        M-->>R: 이벤트 1건 전달
+    end
+
+    opt 미승인 도구 사용
+        C->>B: --permission-prompt-tool 호출
+        B->>M: 권한 요청 (requestId)
+        M->>D: 요청 기록
+        M-->>R: 승인 요청 표시 (S-07)
+        alt 응답 시간 안에 응답
+            R->>M: A-10 runs.respondPermission (requestId, allow 또는 deny)
+            M->>D: 응답 기록
+            M-->>B: 응답 (대기 1건 = 응답 1건)
+            B-->>C: allow 또는 deny
+        else 응답 시간 초과 (값 팀장 결정 필요)
+            M->>D: 시간 초과 기록 (거부 처리)
+            M-->>B: deny (자동 허용 없음)
+            B-->>C: deny
+        end
+    end
+
+    alt 정상 종료
+        C-->>A: 종료 결과
+        A->>M: 종료 코드
+        M->>D: 최종 상태 기록 (succeeded 또는 failed)
+        M-->>R: 종료 이벤트
+    else 사용자 취소
+        R->>M: A-11 runs.cancel (runId)
+        M->>A: 취소 요청
+        A->>C: 프로세스 트리 종료 (Windows는 트리 단위)
+        M->>D: 상태 cancelled 기록
+        M-->>R: 최종 상태
+    end
+
+    opt 앱 재시작 시 (정리)
+        M->>D: starting · running · waiting_permission 실행 조회
+        M->>D: 해당 실행을 failed로 기록 (error_code=interrupted)
+        Note over M,D: 앱이 직전 종료 중 남긴 실행은 복구하지 않고 중단 처리
+    end

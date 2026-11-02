@@ -1,0 +1,41 @@
+sequenceDiagram
+    autonumber
+    participant R as "Renderer (S-01 · S-08)"
+    participant I as "소스·색인 모듈"
+    participant P as "파서 (MD · PDF)"
+    participant D as "SQLite (index_jobs · documents · doc_fts · links · tags)"
+
+    R->>I: A-02 sources.add (폴더 경로 또는 sample)
+    I->>I: 광범위 경로 거부 · 정규화 후 접두 검사
+    I->>D: sources 행 추가
+    I-->>R: 소스 목록
+
+    R->>I: A-03 index.preview (sourceId)
+    Note over I: 기본 제외 규칙<br/>숨김 폴더 · .git · node_modules<br/>파일 크기 상한 초과 (상한 값 팀장 결정 필요)
+    loop 연결 폴더 읽기 전용 순회
+        I->>I: 제외 규칙 적용 후 대상 / 제외 분류
+    end
+    I-->>R: 대상 수 · 제외 수
+
+    R->>I: A-03 index.start (sourceId, 없으면 전체)
+    I->>D: index_jobs 행 생성 (started_at)
+    loop 연결 폴더 읽기 전용 순회 (기본 제외 규칙 적용)
+        I->>I: 파일 해시 비교 (변경 없으면 건너뜀)
+        alt 변경되었거나 새 파일
+            I->>P: 파일 경로 (읽기 전용)
+            alt 추출 성공
+                P-->>I: 추출 텍스트 · 링크 · 태그
+                I->>D: documents 갱신
+                I->>D: doc_fts 갱신
+                I->>D: links 갱신
+                I->>D: tags 갱신
+            else 추출 실패
+                P-->>I: 실패 사유
+                Note over I: 실패 파일 경로와 사유만 기록, 본문 제외
+            end
+        end
+    end
+    I->>D: index_jobs 완료 기록 (finished_at · status · counts: 처리 · 실패 · 제외 수)
+
+    R->>I: A-03 index.status
+    I-->>R: 진행률 · 처리 수 · 실패 수 · 실패 파일 목록

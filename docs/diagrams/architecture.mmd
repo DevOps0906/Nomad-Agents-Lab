@@ -1,0 +1,33 @@
+flowchart LR
+  user["사용자"] --> renderer["Renderer<br/>React + Fluent UI<br/>권한 없음"]
+  renderer -->|"A-01~A-17 invoke"| preload["Preload<br/>contextBridge 허용 목록"]
+  preload --> ipc["IPC 라우터<br/>스키마 검증"]
+  ipc -.->|"runs.events"| preload
+  subgraph main["Electron main"]
+    ipc
+    env["환경 점검"]
+    indexer["소스·색인"]
+    search["검색·그래프"]
+    skills["스킬 카탈로그"]
+    runs["실행 관리자"]
+    adapter["Claude Code 어댑터"]
+    bridge["권한 브리지<br/>로컬 MCP"]
+    db[("SQLite + FTS5")]
+  end
+  ipc --> env
+  ipc --> indexer
+  ipc --> search
+  ipc --> skills
+  ipc --> runs
+  indexer --> db
+  search --> db
+  skills --> db
+  runs --> db
+  runs --> adapter
+  bridge --> runs
+  indexer -->|"읽기 전용"| folders[("연결 폴더<br/>Markdown·PDF")]
+  skills -->|"읽기 전용"| skillDirs[("스킬 폴더<br/>SKILL.md")]
+  env -->|"claude --version"| cli["Claude Code CLI"]
+  adapter -->|"claude -p stream-json<br/>--add-dir --allowedTools<br/>--mcp-config --permission-prompt-tool"| cli
+  cli -->|"권한 질의"| bridge
+  cli -->|"승인된 범위만"| folders

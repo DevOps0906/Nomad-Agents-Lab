@@ -1,0 +1,1466 @@
+{
+ "version": "1",
+ "generated": "2026-11-02T15:59:00+00:00",
+ "docs": "docs",
+ "tokens": "기본 시작 토큰(프로젝트 토큰 없음)",
+ "sources": {
+  "docs/03_SCREENS_UX.md": "b2ca257703a5",
+  "docs/04_API.md": "a6195fd8f060",
+  "docs/05_DATA_MODEL.md": "5aa3d1eb2db6"
+ },
+ "changed": [
+  "S-01"
+ ],
+ "removed": [],
+ "screens": {
+  "S-01": {
+   "id": "S-01",
+   "name": "첫 실행 점검",
+   "type_raw": "마법사",
+   "route": "/onboarding",
+   "purpose": "Claude Code 준비 확인 후 첫 자료 연결",
+   "blocks": [
+    {
+     "type": "header",
+     "label": "",
+     "items": []
+    },
+    {
+     "type": "steps",
+     "label": "Claude Code 확인·데이터 위치·첫 폴더 연결",
+     "items": [
+      "Claude Code 확인",
+      "데이터 위치",
+      "첫 폴더 연결"
+     ]
+    },
+    {
+     "type": "card",
+     "label": "Claude Code 설치·로그인 상태",
+     "items": [
+      "Claude Code 설치",
+      "로그인 상태"
+     ]
+    },
+    {
+     "type": "button",
+     "label": "다시 확인",
+     "items": [
+      "다시 확인"
+     ]
+    },
+    {
+     "type": "form",
+     "label": "데이터 저장 위치*·연결할 폴더*·포함 형식(md·pdf)",
+     "items": [
+      "데이터 저장 위치*",
+      "연결할 폴더*",
+      "포함 형식(md",
+      "pdf)"
+     ]
+    },
+    {
+     "type": "list",
+     "label": "색인 대상 미리보기·제외 항목",
+     "items": [
+      "색인 대상 미리보기",
+      "제외 항목"
+     ]
+    },
+    {
+     "type": "button",
+     "label": "샘플 자료로 시작",
+     "items": [
+      "샘플 자료로 시작"
+     ]
+    },
+    {
+     "type": "button",
+     "label": "이전",
+     "items": [
+      "이전"
+     ]
+    },
+    {
+     "type": "button",
+     "label": "다음",
+     "items": [
+      "다음"
+     ]
+    },
+    {
+     "type": "button",
+     "label": "색인 시작",
+     "items": [
+      "색인 시작"
+     ]
+    }
+   ],
+   "data": [
+    "boot_config",
+    "sources"
+   ],
+   "api": [
+    "A-01",
+    "A-17",
+    "A-02",
+    "A-03"
+   ],
+   "role": "로컬 사용자",
+   "next": [
+    "S-02"
+   ],
+   "states_combined": "",
+   "source": "docs/03_SCREENS_UX.md",
+   "type": "wizard",
+   "must_missing": [],
+   "should_missing": [
+    "중간 저장·이어하기"
+   ],
+   "states_missing": [],
+   "hash": "03a99bad91e6",
+   "wireframe": "design/wireframes/S-01.html"
+  },
+  "S-02": {
+   "id": "S-02",
+   "name": "대시보드",
+   "type_raw": "대시보드",
+   "route": "/",
+   "purpose": "시스템 상태와 오늘 볼 일을 한눈에 확인",
+   "blocks": [
+    {
+     "type": "header",
+     "label": "",
+     "items": []
+    },
+    {
+     "type": "nav",
+     "label": "대시보드·Second Brain·스킬·실행 기록·설정",
+     "items": [
+      "대시보드",
+      "Second Brain",
+      "스킬",
+      "실행 기록",
+      "설정"
+     ]
+    },
+    {
+     "type": "link",
+     "label": "자료 검색(S-03으로 이동)",
+     "items": [
+      "자료 검색(S-03으로 이동)"
+     ]
+    },
+    {
+     "type": "daterange",
+     "label": "최근 7일·30일",
+     "items": [
+      "최근 7일",
+      "30일"
+     ]
+    },
+    {
+     "type": "stat",
+     "label": "색인 문서 수·승인 대기·실행 중·실패",
+     "items": [
+      "색인 문서 수",
+      "승인 대기",
+      "실행 중",
+      "실패"
+     ]
+    },
+    {
+     "type": "card",
+     "label": "Claude Code·색인 상태",
+     "items": [
+      "Claude Code",
+      "색인 상태"
+     ]
+    },
+    {
+     "type": "table",
+     "label": "최근 실행(스킬·상태·시각)",
+     "items": [
+      "최근 실행(스킬",
+      "상태",
+      "시각)"
+     ]
+    },
+    {
+     "type": "list",
+     "label": "최근 수정 자료",
+     "items": [
+      "최근 수정 자료"
+     ]
+    },
+    {
+     "type": "button",
+     "label": "폴더 추가",
+     "items": [
+      "폴더 추가"
+     ]
+    },
+    {
+     "type": "button",
+     "label": "스킬 찾기",
+     "items": [
+      "스킬 찾기"
+     ]
+    },
+    {
+     "type": "updated",
+     "label": "",
+     "items": []
+    }
+   ],
+   "data": [
+    "runs",
+    "documents",
+    "sources"
+   ],
+   "api": [
+    "A-15",
+    "A-01",
+    "A-03"
+   ],
+   "role": "로컬 사용자",
+   "next": [
+    "S-03",
+    "S-04",
+    "S-06",
+    "S-07",
+    "S-08"
+   ],
+   "states_combined": "",
+   "source": "docs/03_SCREENS_UX.md",
+   "type": "dashboard",
+   "must_missing": [],
+   "should_missing": [
+    "이전 기간 대비(증감)",
+    "내보내기(CSV·PDF)",
+    "세그먼트·담당자 필터",
+    "할 일·알림(지표가 행동으로 이어지게)"
+   ],
+   "states_missing": [],
+   "hash": "9b406b18cea9",
+   "wireframe": "design/wireframes/S-02.html"
+  },
+  "S-03": {
+   "id": "S-03",
+   "name": "Second Brain",
+   "type_raw": "상세",
+   "route": "/brain",
+   "purpose": "자료를 검색하고 관계로 맥락 파악",
+   "blocks": [
+    {
+     "type": "header",
+     "label": "",
+     "items": []
+    },
+    {
+     "type": "breadcrumb",
+     "label": "",
+     "items": []
+    },
+    {
+     "type": "search",
+     "label": "",
+     "items": []
+    },
+    {
+     "type": "filter",
+     "label": "소스·태그·형식·관계 종류(link·tag·folder·manual)",
+     "items": [
+      "소스",
+      "태그",
+      "형식",
+      "관계 종류(link",
+      "tag",
+      "folder",
+      "manual)"
+     ]
+    },
+    {
+     "type": "chart",
+     "label": "2D 관계 그래프(노드=문서·태그·폴더·없는 문서",
+     "items": [
+      "2D 관계 그래프(노드=문서",
+      "태그",
+      "폴더",
+      "없는 문서"
+     ]
+    },
+    {
+     "type": "범례·표시 수)",
+     "label": "",
+     "items": []
+    },
+    {
+     "type": "button",
+     "label": "초기 시점",
+     "items": [
+      "초기 시점"
+     ]
+    },
+    {
+     "type": "button",
+     "label": "선택 고정",
+     "items": [
+      "선택 고정"
+     ]
+    },
+    {
+     "type": "list",
+     "label": "검색 결과(키보드 이동·선택)",
+     "items": [
+      "검색 결과(키보드 이동",
+      "선택)"
+     ]
+    },
+    {
+     "type": "card",
+     "label": "문서 미리보기(제목·유형·경로·수정 시각·색인 상태)",
+     "items": [
+      "문서 미리보기(제목",
+      "유형",
+      "경로",
+      "수정 시각",
+      "색인 상태)"
+     ]
+    },
+    {
+     "type": "list",
+     "label": "관련 노드(연결 이유 표시)",
+     "items": [
+      "관련 노드(연결 이유 표시)"
+     ]
+    },
+    {
+     "type": "button",
+     "label": "원본 열기(로컬 앱)",
+     "items": [
+      "원본 열기(로컬 앱)"
+     ]
+    },
+    {
+     "type": "button",
+     "label": "직접 연결 추가",
+     "items": [
+      "직접 연결 추가"
+     ]
+    },
+    {
+     "type": "updated",
+     "label": "",
+     "items": []
+    }
+   ],
+   "data": [
+    "documents",
+    "links",
+    "tags"
+   ],
+   "api": [
+    "A-04",
+    "A-05",
+    "A-06",
+    "A-16",
+    "A-03"
+   ],
+   "role": "로컬 사용자",
+   "next": [
+    "S-04",
+    "S-02"
+   ],
+   "states_combined": "",
+   "source": "docs/03_SCREENS_UX.md",
+   "type": "detail",
+   "must_missing": [],
+   "should_missing": [
+    "관련 항목 탭",
+    "활동·변경 이력"
+   ],
+   "states_missing": [],
+   "hash": "6076c17f3165",
+   "wireframe": "design/wireframes/S-03.html"
+  },
+  "S-04": {
+   "id": "S-04",
+   "name": "스킬 목록",
+   "type_raw": "목록",
+   "route": "/skills",
+   "purpose": "실행할 스킬 찾기",
+   "blocks": [
+    {
+     "type": "header",
+     "label": "",
+     "items": []
+    },
+    {
+     "type": "search",
+     "label": "",
+     "items": []
+    },
+    {
+     "type": "filter",
+     "label": "위치(사용자/앱)",
+     "items": [
+      "위치(사용자",
+      "앱)"
+     ]
+    },
+    {
+     "type": "sort",
+     "label": "",
+     "items": []
+    },
+    {
+     "type": "list",
+     "label": "스킬(이름·설명·최근 실행)",
+     "items": [
+      "스킬(이름",
+      "설명",
+      "최근 실행)"
+     ]
+    },
+    {
+     "type": "pagination",
+     "label": "",
+     "items": []
+    },
+    {
+     "type": "card",
+     "label": "상세 패널(목적·필수 입력·참조 자료·사용 도구·최근 실행·수정 시각)",
+     "items": [
+      "상세 패널(목적",
+      "필수 입력",
+      "참조 자료",
+      "사용 도구",
+      "최근 실행",
+      "수정 시각)"
+     ]
+    },
+    {
+     "type": "button",
+     "label": "폴더 열기",
+     "items": [
+      "폴더 열기"
+     ]
+    },
+    {
+     "type": "button",
+     "label": "실행 준비",
+     "items": [
+      "실행 준비"
+     ]
+    }
+   ],
+   "data": [
+    "skills",
+    "runs"
+   ],
+   "api": [
+    "A-07",
+    "A-08"
+   ],
+   "role": "로컬 사용자",
+   "next": [
+    "S-05",
+    "S-07"
+   ],
+   "states_combined": "",
+   "source": "docs/03_SCREENS_UX.md",
+   "type": "list",
+   "must_missing": [],
+   "should_missing": [
+    "새로 만들기",
+    "일괄 작업(선택·삭제·내보내기)",
+    "저장된 보기·열 설정"
+   ],
+   "states_missing": [],
+   "hash": "58c44949fa32",
+   "wireframe": "design/wireframes/S-04.html"
+  },
+  "S-05": {
+   "id": "S-05",
+   "name": "스킬 실행 승인",
+   "type_raw": "폼",
+   "route": "/skills/:name/run",
+   "purpose": "입력과 접근 범위를 확인하고 실행 승인",
+   "blocks": [
+    {
+     "type": "header",
+     "label": "",
+     "items": []
+    },
+    {
+     "type": "breadcrumb",
+     "label": "",
+     "items": []
+    },
+    {
+     "type": "form",
+     "label": "스킬 입력값*·접근 폴더*·허용 도구*",
+     "items": [
+      "스킬 입력값*",
+      "접근 폴더*",
+      "허용 도구*"
+     ]
+    },
+    {
+     "type": "text",
+     "label": "MCP: 2차 지원",
+     "items": [
+      "MCP: 2차 지원"
+     ]
+    },
+    {
+     "type": "text",
+     "label": "예상 변경·외부 전송 대상",
+     "items": [
+      "예상 변경",
+      "외부 전송 대상"
+     ]
+    },
+    {
+     "type": "tabs",
+     "label": "이번 한 번·이 스킬에 이 범위 기억",
+     "items": [
+      "이번 한 번",
+      "이 스킬에 이 범위 기억"
+     ]
+    },
+    {
+     "type": "text",
+     "label": "범위가 넓어지면 다시 묻습니다",
+     "items": [
+      "범위가 넓어지면 다시 묻습니다"
+     ]
+    },
+    {
+     "type": "button",
+     "label": "승인하고 실행",
+     "items": [
+      "승인하고 실행"
+     ]
+    },
+    {
+     "type": "button",
+     "label": "취소",
+     "items": [
+      "취소"
+     ]
+    }
+   ],
+   "data": [
+    "skills",
+    "grants"
+   ],
+   "api": [
+    "A-08",
+    "A-14",
+    "A-09"
+   ],
+   "role": "로컬 사용자",
+   "next": [
+    "S-07",
+    "S-04"
+   ],
+   "states_combined": "",
+   "source": "docs/03_SCREENS_UX.md",
+   "type": "form",
+   "must_missing": [],
+   "should_missing": [
+    "임시 저장(긴 폼)"
+   ],
+   "states_missing": [],
+   "hash": "f31739dd3b24",
+   "wireframe": "design/wireframes/S-05.html"
+  },
+  "S-06": {
+   "id": "S-06",
+   "name": "실행 기록",
+   "type_raw": "목록",
+   "route": "/runs",
+   "purpose": "실행 결과·실패 찾기",
+   "blocks": [
+    {
+     "type": "header",
+     "label": "",
+     "items": []
+    },
+    {
+     "type": "search",
+     "label": "",
+     "items": []
+    },
+    {
+     "type": "filter",
+     "label": "상태(승인 대기·실행 중·성공·부분 완료·실패·취소)·스킬·기간",
+     "items": [
+      "상태(승인 대기",
+      "실행 중",
+      "성공",
+      "부분 완료",
+      "실패",
+      "취소)",
+      "스킬",
+      "기간"
+     ]
+    },
+    {
+     "type": "sort",
+     "label": "",
+     "items": []
+    },
+    {
+     "type": "table",
+     "label": "시작 시각·스킬·상태·소요 시간·요약",
+     "items": [
+      "시작 시각",
+      "스킬",
+      "상태",
+      "소요 시간",
+      "요약"
+     ]
+    },
+    {
+     "type": "pagination",
+     "label": "",
+     "items": []
+    },
+    {
+     "type": "updated",
+     "label": "",
+     "items": []
+    }
+   ],
+   "data": [
+    "runs"
+   ],
+   "api": [
+    "A-12"
+   ],
+   "role": "로컬 사용자",
+   "next": [
+    "S-07"
+   ],
+   "states_combined": "",
+   "source": "docs/03_SCREENS_UX.md",
+   "type": "list",
+   "must_missing": [],
+   "should_missing": [
+    "새로 만들기",
+    "일괄 작업(선택·삭제·내보내기)",
+    "저장된 보기·열 설정"
+   ],
+   "states_missing": [],
+   "hash": "4c9d1cf43959",
+   "wireframe": "design/wireframes/S-06.html"
+  },
+  "S-07": {
+   "id": "S-07",
+   "name": "실행 상세",
+   "type_raw": "상세",
+   "route": "/runs/:id",
+   "purpose": "진행·권한 요청·결과·오류 확인과 조치",
+   "blocks": [
+    {
+     "type": "header",
+     "label": "",
+     "items": []
+    },
+    {
+     "type": "breadcrumb",
+     "label": "",
+     "items": []
+    },
+    {
+     "type": "card",
+     "label": "상태·스킬·시작/종료·입력 요약(민감 값 가림)",
+     "items": [
+      "상태",
+      "스킬",
+      "시작",
+      "종료",
+      "입력 요약(민감 값 가림)"
+     ]
+    },
+    {
+     "type": "activity",
+     "label": "",
+     "items": []
+    },
+    {
+     "type": "card",
+     "label": "권한 요청(요청 범위·도구)",
+     "items": [
+      "권한 요청(요청 범위",
+      "도구)"
+     ]
+    },
+    {
+     "type": "button",
+     "label": "허용",
+     "items": [
+      "허용"
+     ]
+    },
+    {
+     "type": "button",
+     "label": "거부",
+     "items": [
+      "거부"
+     ]
+    },
+    {
+     "type": "text",
+     "label": "오류 요약·사용한 도구·자료",
+     "items": [
+      "오류 요약",
+      "사용한 도구",
+      "자료"
+     ]
+    },
+    {
+     "type": "button",
+     "label": "취소",
+     "items": [
+      "취소"
+     ]
+    },
+    {
+     "type": "button",
+     "label": "재시도(새 실행)",
+     "items": [
+      "재시도(새 실행)"
+     ]
+    },
+    {
+     "type": "link",
+     "label": "관련 자료 열기",
+     "items": [
+      "관련 자료 열기"
+     ]
+    }
+   ],
+   "data": [
+    "runs",
+    "run_events"
+   ],
+   "api": [
+    "A-13",
+    "A-10",
+    "A-11",
+    "A-09",
+    "A-06"
+   ],
+   "role": "로컬 사용자",
+   "next": [
+    "S-06",
+    "S-05",
+    "S-03"
+   ],
+   "states_combined": "",
+   "source": "docs/03_SCREENS_UX.md",
+   "type": "detail",
+   "must_missing": [],
+   "should_missing": [
+    "관련 항목 탭"
+   ],
+   "states_missing": [],
+   "hash": "b9a739873d9c",
+   "wireframe": "design/wireframes/S-07.html"
+  },
+  "S-08": {
+   "id": "S-08",
+   "name": "설정",
+   "type_raw": "설정",
+   "route": "/settings",
+   "purpose": "데이터·권한·접근성 직접 통제",
+   "blocks": [
+    {
+     "type": "header",
+     "label": "",
+     "items": []
+    },
+    {
+     "type": "tabs",
+     "label": "일반·자료·권한",
+     "items": [
+      "일반",
+      "자료",
+      "권한"
+     ]
+    },
+    {
+     "type": "card",
+     "label": "Claude Code 상태",
+     "items": [
+      "Claude Code 상태"
+     ]
+    },
+    {
+     "type": "button",
+     "label": "다시 확인",
+     "items": [
+      "다시 확인"
+     ]
+    },
+    {
+     "type": "form",
+     "label": "데이터 저장 위치·스킬 폴더(skill_dirs)·동작 감소·로그 보존 기간",
+     "items": [
+      "데이터 저장 위치",
+      "스킬 폴더(skill_dirs)",
+      "동작 감소",
+      "로그 보존 기간"
+     ]
+    },
+    {
+     "type": "table",
+     "label": "연결 폴더(경로·문서 수·마지막 색인)",
+     "items": [
+      "연결 폴더(경로",
+      "문서 수",
+      "마지막 색인)"
+     ]
+    },
+    {
+     "type": "button",
+     "label": "폴더 추가",
+     "items": [
+      "폴더 추가"
+     ]
+    },
+    {
+     "type": "button",
+     "label": "재색인",
+     "items": [
+      "재색인"
+     ]
+    },
+    {
+     "type": "button",
+     "label": "연결 해제",
+     "items": [
+      "연결 해제"
+     ]
+    },
+    {
+     "type": "text",
+     "label": "추출 텍스트 사본 저장 고지",
+     "items": [
+      "추출 텍스트 사본 저장 고지"
+     ]
+    },
+    {
+     "type": "list",
+     "label": "스킬 폴더",
+     "items": [
+      "스킬 폴더"
+     ]
+    },
+    {
+     "type": "button",
+     "label": "스킬 폴더 추가",
+     "items": [
+      "스킬 폴더 추가"
+     ]
+    },
+    {
+     "type": "table",
+     "label": "기억한 허용(스킬·범위·기억 시각)",
+     "items": [
+      "기억한 허용(스킬",
+      "범위",
+      "기억 시각)"
+     ]
+    },
+    {
+     "type": "button",
+     "label": "허용 해제",
+     "items": [
+      "허용 해제"
+     ]
+    },
+    {
+     "type": "button",
+     "label": "저장",
+     "items": [
+      "저장"
+     ]
+    }
+   ],
+   "data": [
+    "settings",
+    "sources",
+    "grants"
+   ],
+   "api": [
+    "A-17",
+    "A-01",
+    "A-02",
+    "A-03",
+    "A-14"
+   ],
+   "role": "로컬 사용자",
+   "next": [
+    "S-02"
+   ],
+   "states_combined": "",
+   "source": "docs/03_SCREENS_UX.md",
+   "type": "settings",
+   "must_missing": [],
+   "should_missing": [
+    "위험 작업 구역(삭제·탈퇴) 분리·확인"
+   ],
+   "states_missing": [],
+   "hash": "d2161fb1dbf2",
+   "wireframe": "design/wireframes/S-08.html"
+  }
+ },
+ "states": {
+  "S-01": {
+   "빈": "Claude Code 미설치·미로그인: 설치·로그인 안내 + 다시 확인 버튼",
+   "로딩": "환경 확인·색인 진행률(파일 수)",
+   "오류": "폴더 접근 실패·색인 실패: 원인 + 다른 폴더 선택/다시 시도",
+   "성공": "색인 완료 요약(포함·제외 수) + 대시보드로 이동"
+  },
+  "S-02": {
+   "빈": "자료 없음: 내 폴더 연결 / 샘플 보기 두 선택지(샘플은 배지로 구분)",
+   "로딩": "지표 카드 스켈레톤",
+   "오류": "요약 불러오기 실패 + 다시 시도",
+   "성공": "—"
+  },
+  "S-03": {
+   "빈": "연결 폴더 없음: 폴더 연결 버튼 / 링크·태그가 적음: 위키링크·태그 쓰는 법 안내 / 검색 결과 0건: 필터 해제",
+   "로딩": "그래프 자리 스켈레톤 + 색인 중 표시",
+   "오류": "그래프 불러오기 실패: 목록 보기로 계속 + 다시 시도 / 없는 문서 노드는 \"없는 문서\" 표시",
+   "성공": "—"
+  },
+  "S-04": {
+   "빈": "스킬 없음: 스킬 폴더 위치 안내 / 검색 0건: 필터 해제",
+   "로딩": "목록 스켈레톤",
+   "오류": "SKILL.md 읽기 실패: 해당 스킬에 오류 배지 + 사유",
+   "성공": "—"
+  },
+  "S-05": {
+   "빈": "입력 필요 항목 없음: 범위 확인만 표시",
+   "로딩": "승인 처리 중(버튼 비활성)",
+   "오류": "필수 입력 누락·범위 확인 실패: 필드별 오류 문구",
+   "성공": "실행 시작 → S-07로 이동"
+  },
+  "S-06": {
+   "빈": "실행 기록 없음: 스킬 목록으로 가기",
+   "로딩": "표 스켈레톤",
+   "오류": "기록 불러오기 실패 + 다시 시도",
+   "성공": "—"
+  },
+  "S-07": {
+   "빈": "없는 실행 ID: 실행 기록으로 돌아가기",
+   "로딩": "실행 중 진행 표시 + 실시간 이벤트 추가",
+   "오류": "실패·권한 거부·취소: 오류 요약 + 재시도/취소 선택",
+   "성공": "성공·부분 완료 결과 요약 + 관련 자료 링크"
+  },
+  "S-08": {
+   "빈": "연결 폴더·기억한 허용 없음: 각 표에 안내 문구",
+   "로딩": "설정 불러오기 스켈레톤",
+   "오류": "저장 실패: 필드별 오류 + 이전 값 유지",
+   "성공": "저장됨 알림"
+  }
+ },
+ "flows": {
+  "F-01": {
+   "id": "F-01",
+   "name": "첫 시작",
+   "steps": [
+    "S-01",
+    "S-02",
+    "S-03"
+   ],
+   "source": "docs/03_SCREENS_UX.md"
+  },
+  "F-02": {
+   "id": "F-02",
+   "name": "자료 찾기",
+   "steps": [
+    "S-02",
+    "S-03"
+   ],
+   "source": "docs/03_SCREENS_UX.md"
+  },
+  "F-03": {
+   "id": "F-03",
+   "name": "스킬 실행",
+   "steps": [
+    "S-04",
+    "S-05",
+    "S-07",
+    "S-06"
+   ],
+   "source": "docs/03_SCREENS_UX.md"
+  },
+  "F-04": {
+   "id": "F-04",
+   "name": "실패 조사",
+   "steps": [
+    "S-02",
+    "S-06",
+    "S-07",
+    "S-05",
+    "S-07"
+   ],
+   "source": "docs/03_SCREENS_UX.md"
+  }
+ },
+ "apis": {
+  "A-01": {
+   "id": "A-01",
+   "method": "invoke",
+   "path": "env.check",
+   "row": {
+    "ID": "A-01",
+    "메서드": "invoke",
+    "경로": "env.check",
+    "입력": "없음",
+    "출력": "설치 여부·버전·지원 범위 여부·로그인 상태·데이터 위치 설정 여부",
+    "권한": "프로세스 실행(`claude --version` 등 점검 명령만)",
+    "오류": "E_CLAUDE_MISSING`, `E_CLAUDE_AUTH`(로그인 확인 방법 T-02 미확인)"
+   },
+   "source": "docs/04_API.md"
+  },
+  "A-02": {
+   "id": "A-02",
+   "method": "invoke",
+   "path": "sources.list · sources.add · sources.remove",
+   "row": {
+    "ID": "A-02",
+    "메서드": "invoke",
+    "경로": "sources.list · sources.add · sources.remove",
+    "입력": "add: `dialog`(Main이 폴더 선택 대화상자를 열어 그 결과만 사용) 또는 `sample` / remove: `sourceId",
+    "출력": "소스 목록(경로·종류·문서 수·마지막 색인)",
+    "권한": "DB 읽기·쓰기, OS 폴더 선택 대화상자",
+    "오류": "E_VALIDATION`(드라이브 루트 등 광범위 경로 거부), `E_NOT_FOUND`, `E_BUSY`(색인 중 삭제)"
+   },
+   "source": "docs/04_API.md"
+  },
+  "A-03": {
+   "id": "A-03",
+   "method": "invoke",
+   "path": "index.preview · index.start · index.status",
+   "row": {
+    "ID": "A-03",
+    "메서드": "invoke",
+    "경로": "index.preview · index.start · index.status",
+    "입력": "preview: `sourceId` / start: `sourceId?`(없으면 전체)",
+    "출력": "preview: 대상 수·제외 수(기본 제외 규칙 [02#2](02_ARCHITECTURE.md)) / status: 진행률·처리/실패 수·실패 파일 목록(사유)",
+    "권한": "fs 읽기 전용(연결 폴더 안), DB 쓰기",
+    "오류": "E_BUSY`, `E_NOT_FOUND"
+   },
+   "source": "docs/04_API.md"
+  },
+  "A-04": {
+   "id": "A-04",
+   "method": "invoke",
+   "path": "search.query",
+   "row": {
+    "ID": "A-04",
+    "메서드": "invoke",
+    "경로": "search.query",
+    "입력": "검색어, 필터(소스·태그·형식·관계 종류), 페이지",
+    "출력": "문서 목록(제목·경로·발췌·점수)",
+    "권한": "DB 읽기",
+    "오류": "E_VALIDATION`(FTS 구문 오류는 일반 텍스트로 재시도)"
+   },
+   "source": "docs/04_API.md"
+  },
+  "A-05": {
+   "id": "A-05",
+   "method": "invoke",
+   "path": "graph.get",
+   "row": {
+    "ID": "A-05",
+    "메서드": "invoke",
+    "경로": "graph.get",
+    "입력": "필터(소스·태그·형식·관계 종류), 중심 문서 ID?, 깊이",
+    "출력": "노드(문서·태그·폴더·없는 문서)·관계(종류 `link`·`tag`·`folder`·`manual`)·분야 색상 키",
+    "권한": "DB 읽기",
+    "오류": "E_NOT_FOUND`, `E_VALIDATION`(노드 수 상한 초과 — 상한 팀장 결정 필요)"
+   },
+   "source": "docs/04_API.md"
+  },
+  "A-06": {
+   "id": "A-06",
+   "method": "invoke",
+   "path": "doc.preview · doc.openExternal",
+   "row": {
+    "ID": "A-06",
+    "메서드": "invoke",
+    "경로": "doc.preview · doc.openExternal",
+    "입력": "docId",
+    "출력": "preview: 제목·추출 텍스트 일부·메타·관련 노드 / openExternal: 성공 여부",
+    "권한": "DB 읽기, `shell.openPath`(색인된 문서 경로만)",
+    "오류": "E_NOT_FOUND`, `E_OUT_OF_SCOPE`(파일이 연결 폴더 밖·삭제됨)"
+   },
+   "source": "docs/04_API.md"
+  },
+  "A-07": {
+   "id": "A-07",
+   "method": "invoke",
+   "path": "skills.list",
+   "row": {
+    "ID": "A-07",
+    "메서드": "invoke",
+    "경로": "skills.list",
+    "입력": "검색어?",
+    "출력": "스킬 목록(이름·설명·위치(사용자/앱)·유효 여부·`last_run`)",
+    "권한": "fs 읽기(스킬 폴더), DB 쓰기(색인)",
+    "오류": "E_INTERNAL`(폴더 접근 실패는 항목별 오류로 반환)"
+   },
+   "source": "docs/04_API.md"
+  },
+  "A-08": {
+   "id": "A-08",
+   "method": "invoke",
+   "path": "skills.get · skills.openFolder",
+   "row": {
+    "ID": "A-08",
+    "메서드": "invoke",
+    "경로": "skills.get · skills.openFolder",
+    "입력": "스킬 `name",
+    "출력": "get: 설명·본문 요약·`ssr.inputs`·`ssr.reads`·`ssr.tools`·이 스킬의 기억한 허용 / openFolder: 성공 여부",
+    "권한": "fs 읽기, DB 읽기, `shell.openPath`(등록된 스킬 폴더만)",
+    "오류": "E_NOT_FOUND`, `E_VALIDATION`(frontmatter 파싱 실패), `E_OUT_OF_SCOPE`(등록되지 않은 폴더)"
+   },
+   "source": "docs/04_API.md"
+  },
+  "A-09": {
+   "id": "A-09",
+   "method": "invoke",
+   "path": "runs.start",
+   "row": {
+    "ID": "A-09",
+    "메서드": "invoke",
+    "경로": "runs.start",
+    "입력": "스킬 `name`, 입력 값, 범위(폴더 ID 목록·도구 목록 — 1차 허용 도구만, [02#3](02_ARCHITECTURE.md)), `remember`(이번만/기억), `retryOf?",
+    "출력": "runId",
+    "권한": "프로세스 실행(Claude Code 어댑터), DB 쓰기",
+    "오류": "E_CLAUDE_MISSING`, `E_CLAUDE_AUTH`, `E_OUT_OF_SCOPE`(폴더가 연결 소스 아님), `E_VALIDATION`(필수 입력 누락·1차 금지 도구)"
+   },
+   "source": "docs/04_API.md"
+  },
+  "A-10": {
+   "id": "A-10",
+   "method": "invoke",
+   "path": "runs.respondPermission",
+   "row": {
+    "ID": "A-10",
+    "메서드": "invoke",
+    "경로": "runs.respondPermission",
+    "입력": "runId`, `requestId`, `allow`/`deny",
+    "출력": "반영 여부",
+    "권한": "권한 브리지 응답 전달, DB 쓰기",
+    "오류": "E_NOT_FOUND`(이미 응답·만료된 요청)"
+   },
+   "source": "docs/04_API.md"
+  },
+  "A-11": {
+   "id": "A-11",
+   "method": "invoke",
+   "path": "runs.cancel",
+   "row": {
+    "ID": "A-11",
+    "메서드": "invoke",
+    "경로": "runs.cancel",
+    "입력": "runId",
+    "출력": "최종 상태",
+    "권한": "프로세스 종료(해당 실행의 트리만)",
+    "오류": "E_NOT_FOUND`, `E_VALIDATION`(이미 종료)"
+   },
+   "source": "docs/04_API.md"
+  },
+  "A-12": {
+   "id": "A-12",
+   "method": "invoke",
+   "path": "runs.list",
+   "row": {
+    "ID": "A-12",
+    "메서드": "invoke",
+    "경로": "runs.list",
+    "입력": "검색어(스킬명·결과 요약)?, 상태·스킬 필터, 기간 `from`/`to`, 페이지",
+    "출력": "실행 목록(스킬·상태·시작·소요·결과 요약)",
+    "권한": "DB 읽기",
+    "오류": "E_VALIDATION"
+   },
+   "source": "docs/04_API.md"
+  },
+  "A-13": {
+   "id": "A-13",
+   "method": "invoke + subscribe",
+   "path": "runs.get · 이벤트 runs.events",
+   "row": {
+    "ID": "A-13",
+    "메서드": "invoke + subscribe",
+    "경로": "runs.get · 이벤트 runs.events",
+    "입력": "runId` / 구독: `runId",
+    "출력": "실행 상세 + 이벤트 목록 / 구독: 이벤트 1건씩(`seq` 순)",
+    "권한": "DB 읽기",
+    "오류": "E_NOT_FOUND"
+   },
+   "source": "docs/04_API.md"
+  },
+  "A-14": {
+   "id": "A-14",
+   "method": "invoke",
+   "path": "grants.list · grants.revoke",
+   "row": {
+    "ID": "A-14",
+    "메서드": "invoke",
+    "경로": "grants.list · grants.revoke",
+    "입력": "revoke: `grantId",
+    "출력": "기억한 허용 목록(스킬·폴더·도구·마지막 사용. MCP는 2차)",
+    "권한": "DB 읽기·쓰기",
+    "오류": "E_NOT_FOUND"
+   },
+   "source": "docs/04_API.md"
+  },
+  "A-15": {
+   "id": "A-15",
+   "method": "invoke",
+   "path": "dashboard.summary",
+   "row": {
+    "ID": "A-15",
+    "메서드": "invoke",
+    "경로": "dashboard.summary",
+    "입력": "기간(`7d`·`30d`, 기본 `7d`)",
+    "출력": "선택 기간 기준: 소스·문서 수, 색인 실패 수, 최근 수정 문서, 최근 실행, 실행 상태별 수",
+    "권한": "DB 읽기",
+    "오류": "E_INTERNAL"
+   },
+   "source": "docs/04_API.md"
+  },
+  "A-16": {
+   "id": "A-16",
+   "method": "invoke",
+   "path": "links.addManual · links.removeManual",
+   "row": {
+    "ID": "A-16",
+    "메서드": "invoke",
+    "경로": "links.addManual · links.removeManual",
+    "입력": "add: `srcDocId`, `dstDocId` / remove: `linkId",
+    "출력": "관계 1건",
+    "권한": "DB 쓰기(`manual`만, 자동 추출 관계는 삭제 불가)",
+    "오류": "E_NOT_FOUND`, `E_VALIDATION`(자기 자신·중복·자동 관계 삭제 시도)"
+   },
+   "source": "docs/04_API.md"
+  },
+  "A-17": {
+   "id": "A-17",
+   "method": "invoke",
+   "path": "settings.get · settings.set",
+   "row": {
+    "ID": "A-17",
+    "메서드": "invoke",
+    "경로": "settings.get · settings.set",
+    "입력": "set: 허용된 키 + 값(데이터 위치·`skill_dirs` 추가는 값 대신 `dialog` — Main 대화상자 결과만, 전환 절차 [02#5](02_ARCHITECTURE.md))",
+    "출력": "설정 값",
+    "권한": "DB 읽기·쓰기, 부트 설정 쓰기(데이터 위치)",
+    "오류": "E_VALIDATION`(알 수 없는 키·범위 밖 값)"
+   },
+   "source": "docs/04_API.md"
+  }
+ },
+ "tables": {
+  "sources": {
+   "name": "sources",
+   "row": {
+    "테이블": "sources",
+    "목적": "연결 폴더·샘플 세트",
+    "주요 컬럼": "id`, `kind`(`folder`·`sample`), `path`(정규화 절대 경로), `label`, `status`(`ok`·`missing`·`indexing`), `created_at`, `last_indexed_at",
+    "RLS 기준": "로컬 단일 사용자—해당 없음",
+    "비고": "path` 유일. 샘플은 `kind`로 실제 자료와 구분(project-plan#5)"
+   },
+   "source": "docs/05_DATA_MODEL.md"
+  },
+  "documents": {
+   "name": "documents",
+   "row": {
+    "테이블": "documents",
+    "목적": "색인된 Markdown·PDF 1건",
+    "주요 컬럼": "id`, `source_id`→sources, `rel_path`, `title`, `format`(`md`·`pdf`), `size`, `mtime`, `content_hash`, `status`(`ok`·`error`·`encrypted`·`deleted`), `error`, `indexed_at",
+    "RLS 기준": "로컬 단일 사용자—해당 없음",
+    "비고": "(`source_id`,`rel_path`) 유일. 해시로 증분 색인. 소스 삭제 시 연쇄 삭제"
+   },
+   "source": "docs/05_DATA_MODEL.md"
+  },
+  "doc_fts": {
+   "name": "doc_fts",
+   "row": {
+    "테이블": "doc_fts",
+    "목적": "전문 검색(FTS5 가상 테이블)",
+    "주요 컬럼": "rowid`=documents.id, `title`, `body`(추출 텍스트)",
+    "RLS 기준": "로컬 단일 사용자—해당 없음",
+    "비고": "토크나이저(`unicode61` / `trigram`) 한국어 검색 품질 검증 — [PRD Q11](01_PRD.md). 추출 텍스트 사본이 DB에 남음을 S-08에 고지"
+   },
+   "source": "docs/05_DATA_MODEL.md"
+  },
+  "links": {
+   "name": "links",
+   "row": {
+    "테이블": "links",
+    "목적": "문서 간 관계",
+    "주요 컬럼": "id`, `src_doc_id`→documents, `dst_doc_id`→documents(NULL 허용), `dst_raw`(원래 링크 문자열), `kind`(`link`·`manual`), `created_at",
+    "RLS 기준": "로컬 단일 사용자—해당 없음",
+    "비고": "dst_doc_id` NULL = \"없는 문서\" 노드(ADR-0003). `manual`만 A-16으로 추가·삭제. `folder` 관계는 저장하지 않고 `rel_path`로 조회 시 계산"
+   },
+   "source": "docs/05_DATA_MODEL.md"
+  },
+  "tags": {
+   "name": "tags",
+   "row": {
+    "테이블": "tags",
+    "목적": "문서-태그 연결",
+    "주요 컬럼": "doc_id`→documents, `name`(정규화 소문자), `origin`(`frontmatter`·`inline`)",
+    "RLS 기준": "로컬 단일 사용자—해당 없음",
+    "비고": "PK(`doc_id`,`name`). 태그 노드 = `name` 고유값. 색상 = 최상위 태그, 없으면 루트 폴더(ADR-0003). 사용자 지정은 `settings.color_overrides"
+   },
+   "source": "docs/05_DATA_MODEL.md"
+  },
+  "skills": {
+   "name": "skills",
+   "row": {
+    "테이블": "skills",
+    "목적": "SKILL.md` 색인 캐시",
+    "주요 컬럼": "id`, `name`, `root`(`user`·`app`), `path`, `description`, `ssr_json`(frontmatter `ssr:`), `content_hash`, `mtime`, `valid`, `error`, `scanned_at",
+    "RLS 기준": "로컬 단일 사용자—해당 없음",
+    "비고": "원본은 파일(ADR-0002). 같은 `name`이 두 위치에 있을 때 우선순위 — [PRD Q12](01_PRD.md)"
+   },
+   "source": "docs/05_DATA_MODEL.md"
+  },
+  "runs": {
+   "name": "runs",
+   "row": {
+    "테이블": "runs",
+    "목적": "스킬 실행 1건",
+    "주요 컬럼": "id`, `skill_name`, `skill_hash`, `input_json`, `scope_json`(폴더·도구·MCP), `grant_id`→grants(NULL), `retry_of`→runs(NULL), `status`(`starting`·`running`·`waiting_permission`·`succeeded`·`partial`·`failed`·`cancelled`), `error_code`, `claude_version`, `session_id`, `exit_code`, `result_summary`, `started_at`, `ended_at",
+    "RLS 기준": "로컬 단일 사용자—해당 없음",
+    "비고": "input_json` 원문 저장·마스킹 여부 — [PRD Q6](01_PRD.md). 앱 재시작 시 `starting`·`running`·`waiting_permission`은 모두 `failed`(`error_code`=`interrupted`)로 정리. 성공률 정의: [`00_LEAN.md#통과 기준`](00_LEAN.md)"
+   },
+   "source": "docs/05_DATA_MODEL.md"
+  },
+  "run_events": {
+   "name": "run_events",
+   "row": {
+    "테이블": "run_events",
+    "목적": "실행 이벤트 스트림",
+    "주요 컬럼": "run_id`→runs, `seq`, `ts`, `type`(`system`·`assistant`·`tool_use`·`tool_result`·`permission_request`·`permission_response`·`result`·`stderr`·`error`), `request_id`(권한 요청 짝), `payload_json",
+    "RLS 기준": "로컬 단일 사용자—해당 없음",
+    "비고": "PK(`run_id`,`seq`). stream-json 줄 → 1행. 보존 기간 경과 시 일괄 삭제(기본값 [PRD Q6](01_PRD.md))"
+   },
+   "source": "docs/05_DATA_MODEL.md"
+  },
+  "grants": {
+   "name": "grants",
+   "row": {
+    "테이블": "grants",
+    "목적": "기억한 허용(스킬별 범위)",
+    "주요 컬럼": "id`, `skill_name`, `folders_json`(source id 목록), `tools_json`, `mcp_json`, `created_at`, `last_used_at`, `revoked_at",
+    "RLS 기준": "로컬 단일 사용자—해당 없음",
+    "비고": "새 실행 범위 ⊆ 허용 범위일 때만 재사용, 넓어지면 다시 질의(ADR-0004). 해제는 `revoked_at` 기록. `mcp_json`은 2차용으로 1차는 항상 빈 값(1차는 MCP 사용 안 함, [`02_ARCHITECTURE.md`](02_ARCHITECTURE.md))"
+   },
+   "source": "docs/05_DATA_MODEL.md"
+  },
+  "settings": {
+   "name": "settings",
+   "row": {
+    "테이블": "settings",
+    "목적": "앱 설정 키-값",
+    "주요 컬럼": "key`, `value_json`, `updated_at",
+    "RLS 기준": "로컬 단일 사용자—해당 없음",
+    "비고": "허용 키: 스킬 폴더 목록, 폴더 관계 표시, 동작 감소, 로그 보존 일수, `max_turns`, `color_overrides`(태그·폴더→색상). 데이터 위치는 여기 아님(부트 설정)"
+   },
+   "source": "docs/05_DATA_MODEL.md"
+  },
+  "boot_config": {
+   "name": "boot_config",
+   "row": {
+    "테이블": "boot_config",
+    "목적": "(DB 밖 JSON 파일) 데이터 위치 등 DB를 열기 전에 필요한 설정",
+    "주요 컬럼": "data_dir`, `schema_version",
+    "RLS 기준": "로컬 단일 사용자—해당 없음",
+    "비고": "위치: `%APPDATA%` 앱 폴더. 데이터 위치 전환 절차는 [02#5](02_ARCHITECTURE.md)"
+   },
+   "source": "docs/05_DATA_MODEL.md"
+  },
+  "index_jobs": {
+   "name": "index_jobs",
+   "row": {
+    "테이블": "index_jobs",
+    "목적": "색인 작업 1건",
+    "주요 컬럼": "id`, `source_id`→sources, `started_at`, `finished_at`, `status`, `counts`(처리 건수 JSON)",
+    "RLS 기준": "로컬 단일 사용자—해당 없음",
+    "비고": "색인 처리 시간 지표의 측정원([`01_PRD.md#5`](01_PRD.md)). 소스 삭제 시 연쇄 삭제"
+   },
+   "source": "docs/05_DATA_MODEL.md"
+  },
+  "usage_events": {
+   "name": "usage_events",
+   "row": {
+    "테이블": "usage_events",
+    "목적": "사용 이벤트(로컬 지표용)",
+    "주요 컬럼": "id`, `type`(`onboarding_start`·`onboarding_done`·`search`·`preview`), `ts",
+    "RLS 기준": "로컬 단일 사용자—해당 없음",
+    "비고": "로컬 전용, 외부 전송 없음. 사용일·첫 검색 시간 측정원([`00_LEAN.md#통과 기준`](00_LEAN.md))"
+   },
+   "source": "docs/05_DATA_MODEL.md"
+  }
+ },
+ "issues": [
+  [
+   "🟡",
+   "S-01",
+   "첫 실행 점검 권장: 중간 저장·이어하기"
+  ],
+  [
+   "🟡",
+   "S-02",
+   "대시보드 권장: 이전 기간 대비(증감), 내보내기(CSV·PDF), 세그먼트·담당자 필터, 할 일·알림(지표가 행동으로 이어지게)"
+  ],
+  [
+   "🟡",
+   "S-03",
+   "Second Brain 권장: 관련 항목 탭, 활동·변경 이력"
+  ],
+  [
+   "ℹ️",
+   "S-03",
+   "모르는 블록(회색 상자로 표시): 범례·표시 수)"
+  ],
+  [
+   "🟡",
+   "S-04",
+   "스킬 목록 권장: 새로 만들기, 일괄 작업(선택·삭제·내보내기), 저장된 보기·열 설정"
+  ],
+  [
+   "🟡",
+   "S-05",
+   "스킬 실행 승인 권장: 임시 저장(긴 폼)"
+  ],
+  [
+   "🟡",
+   "S-06",
+   "실행 기록 권장: 새로 만들기, 일괄 작업(선택·삭제·내보내기), 저장된 보기·열 설정"
+  ],
+  [
+   "🟡",
+   "S-07",
+   "실행 상세 권장: 관련 항목 탭"
+  ],
+  [
+   "🟡",
+   "S-08",
+   "설정 권장: 위험 작업 구역(삭제·탈퇴) 분리·확인"
+  ]
+ ]
+}

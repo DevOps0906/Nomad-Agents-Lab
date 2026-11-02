@@ -1,0 +1,67 @@
+flowchart TB
+    root["SSR+ 기획 전체 구조"]
+
+    subgraph skill["Skill 영역"]
+        sk1["1차 · 스킬 목록·검색 (S-04)"]
+        sk2["1차 · 스킬 실행 승인 (S-05)"]
+        sk3["1차 · 승인 기억 (스킬·범위별)"]
+        sk4["3차 · 스킬 편집기"]
+    end
+
+    subgraph brain["Second Brain 영역"]
+        sb1["1차 · 로컬 폴더 색인·검색 (S-03)"]
+        sb2["1차 · 2D 관계 그래프·문서 미리보기 (S-03)"]
+        sb3["2차 · 3D 그래프 뷰"]
+        sb4["3차 · 임베딩 관계"]
+    end
+
+    subgraph routine["Routine 영역"]
+        rt1["2차 · 루틴 예약 (앱 실행 중·트레이)"]
+        rt2["3차 · 앱 종료 중 루틴 (작업 스케줄러)"]
+    end
+
+    subgraph ext["Extension 영역"]
+        ex1["2차 · MCP 연결 관리"]
+        ex3["3차 · Google Drive 연동"]
+    end
+
+    subgraph common["공통"]
+        cm1["1차 · 첫 실행 점검 (S-01)"]
+        cm2["1차 · 대시보드 (S-02)"]
+        cm3["1차 · 실행 기록·상세 (S-06·S-07)"]
+        cm4["1차 · 최소 설정 (S-08)"]
+        cm5["2차 · 가져오기·내보내기"]
+    end
+
+    root --> skill
+    root --> brain
+    root --> routine
+    root --> ext
+    root --> common
+
+    sk1 --> sk2
+    sk2 --> sk3
+    sk2 -->|실행 결과| cm3
+    cm1 -->|첫 폴더 색인| sb1
+    sb1 --> sb2
+    cm2 -->|최근 실행| cm3
+
+    subgraph adr["핵심 결정 (ADR)"]
+        adr1["ADR-0001 AI 엔진: Claude Code CLI headless 실행"]
+        adr2["ADR-0002 스킬 형식: SKILL.md 호환 폴더"]
+        adr3["ADR-0003 그래프: 문서=노드, 링크·태그=관계 (결정적 추출)"]
+        adr4["ADR-0004 MVP: 수직 슬라이스 1차→2차→3차"]
+    end
+
+    adr1 -.-> skill
+    adr1 -.-> cm1
+    adr2 -.-> skill
+    adr3 -.-> brain
+    adr4 -.-> root
+
+    classDef p1 fill:#dbeafe,stroke:#1d4ed8,color:#0b1f4d
+    classDef p2 fill:#fef3c7,stroke:#b45309,color:#422006
+    classDef p3 fill:#f3f4f6,stroke:#6b7280,color:#1f2937,stroke-dasharray:4 3
+    class sk1,sk2,sk3,sb1,sb2,cm1,cm2,cm3,cm4 p1
+    class sb3,rt1,ex1,cm5 p2
+    class sk4,sb4,rt2,ex3 p3
