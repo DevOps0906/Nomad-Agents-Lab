@@ -14,6 +14,9 @@ const tokenOverrides: Partial<Theme> = {
   colorStrokeFocus2: 'var(--color-focus)',
   fontFamilyBase: 'var(--font-sans)',
   fontFamilyMonospace: 'var(--font-mono)',
+  // 컨트롤 글자 크기도 3구간 토큰을 따른다(Input·Select·Button·Tab은 Base300, 보조 텍스트는 Base200).
+  fontSizeBase300: 'var(--text-body)',
+  fontSizeBase200: 'var(--text-caption)',
   borderRadiusMedium: 'var(--radius-control)',
   borderRadiusXLarge: 'var(--radius-card)',
 };

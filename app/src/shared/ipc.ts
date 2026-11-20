@@ -14,6 +14,9 @@ export const INVOKE_PATHS = [
   'index.preview',
   'index.start',
   'index.status',
+  'search.query',
+  'doc.preview',
+  'doc.openExternal',
 ] as const;
 
 export type InvokePath = (typeof INVOKE_PATHS)[number];
@@ -145,4 +148,65 @@ export interface IndexStatus {
   readonly jobs: IndexJobItem[];
   /** 실패 파일(최대 FAILURE_LIMIT건) */
   readonly failures: IndexFailure[];
+}
+
+// ---- A-04 search.query ----
+export const SEARCH_PAGE_SIZE = 20;
+
+export interface SearchQueryInput {
+  readonly query: string;
+  readonly sourceId?: number;
+  readonly tag?: string;
+  readonly format?: 'md' | 'pdf';
+  readonly page?: number;
+}
+
+/** 절대 경로는 없다: 소스 이름 + 소스 기준 상대 경로만. */
+export interface SearchItem {
+  readonly docId: number;
+  readonly title: string;
+  readonly format: 'md' | 'pdf';
+  readonly sourceLabel: string;
+  readonly relPath: string;
+  /** 일치 주변 발췌(일반 텍스트) */
+  readonly excerpt: string;
+  /** 클수록 관련 높음(LIKE 경로는 0) */
+  readonly score: number;
+}
+
+export interface SearchQueryResult {
+  readonly items: SearchItem[];
+  readonly page: number;
+  readonly hasMore: boolean;
+}
+
+// ---- A-06 doc.preview · doc.openExternal ----
+export interface RelatedNode {
+  /** 없는 문서(대상이 지워졌거나 못 찾음)면 null */
+  readonly docId: number | null;
+  readonly title: string;
+  readonly reason: 'link' | 'manual' | 'backlink';
+}
+
+export interface DocPreview {
+  readonly docId: number;
+  readonly title: string;
+  readonly format: 'md' | 'pdf';
+  readonly sourceLabel: string;
+  readonly relPath: string;
+  /** epoch 밀리초 */
+  readonly mtime: number;
+  readonly indexedAt: string | null;
+  readonly status: 'ok' | 'error' | 'encrypted';
+  /** 색인 실패 사유 코드(원문 없음) */
+  readonly error: string | null;
+  readonly tags: string[];
+  /** 추출 텍스트 앞부분(일반 텍스트. HTML로 해석하지 않는다) */
+  readonly text: string;
+  readonly textTruncated: boolean;
+  readonly related: RelatedNode[];
+}
+
+export interface OpenExternalResult {
+  readonly opened: boolean;
 }

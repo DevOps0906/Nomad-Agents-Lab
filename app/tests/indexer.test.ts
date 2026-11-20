@@ -382,6 +382,7 @@ describe('동시성·IPC', () => {
         setDataDir: async () => ({ status: 'canceled' }),
         sources,
         index: ix,
+        brain: {} as never,
       }),
       isTrustedUrl: createTrustedUrlCheck(),
     });
@@ -412,6 +413,7 @@ describe('동시성·IPC', () => {
         setDataDir: async () => ({ status: 'canceled' }),
         sources: { list: () => [], add: async () => ({ source: null }), remove: () => ({}) },
         index: ix,
+        brain: {} as never,
       }),
       isTrustedUrl: createTrustedUrlCheck(),
     });

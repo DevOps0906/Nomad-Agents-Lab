@@ -2,11 +2,12 @@ import { mkdirSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { BrowserWindow, type WebContents, app, dialog, ipcMain, net, protocol, session } from 'electron';
+import { BrowserWindow, type WebContents, app, dialog, ipcMain, net, protocol, session, shell } from 'electron';
 import { BOOT_CONFIG_FILE_NAME } from './boot/config';
 import { devOverrides } from './boot/devOverrides';
 import { bootDataStore } from './boot/start';
 import { createClaudeChecker, findClaude, findOnPath } from './claude/detect';
+import { createBrain } from './brain/service';
 import { bundledNativeBindingPath } from './db/open';
 import { createIndexer } from './indexer/service';
 import { createBusyLock, createInvokeHandler, registerIpc } from './ipc/router';
@@ -119,7 +120,13 @@ const indexer = createIndexer({
   log,
 });
 
-const routes = createRoutes({ envCheck, setDataDir: onboarding.setDataDir, sources, index: indexer });
+const brain = createBrain({
+  store: () => (bootState?.kind === 'ready' ? { db: bootState.open.db } : null),
+  openPath: (file) => shell.openPath(file),
+  log,
+});
+
+const routes = createRoutes({ envCheck, setDataDir: onboarding.setDataDir, sources, index: indexer, brain });
 
 function closeDatabase(): void {
   // 진행 중 색인은 다음 배치부터 멈춘다(작업 행은 재시작 정리에서 interrupted).

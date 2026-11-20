@@ -1,10 +1,14 @@
 import { z } from 'zod';
 import type {
+  DocPreview,
   EnvCheckResult,
   IndexPreview,
   IndexStartResult,
   IndexStatus,
   InvokePath,
+  OpenExternalResult,
+  SearchQueryInput,
+  SearchQueryResult,
   SetDataDirResult,
   SourceAddResult,
   SourceItem,
@@ -25,6 +29,11 @@ export interface RouteDeps {
     start(sourceId?: number): IndexStartResult;
     status(): IndexStatus;
   };
+  brain: {
+    search(input: SearchQueryInput): SearchQueryResult;
+    preview(docId: number): DocPreview;
+    openExternal(docId: number): Promise<OpenExternalResult>;
+  };
 }
 
 function route<S extends z.ZodType>(input: S, handle: (input: z.infer<S>, context: RouteContext) => unknown): Route {
@@ -35,6 +44,7 @@ function route<S extends z.ZodType>(input: S, handle: (input: z.infer<S>, contex
 const NoInput = z.object({}).strict().optional();
 
 const SourceId = z.number().int().positive();
+const DocId = z.number().int().positive();
 
 /** 허용 경로 → 처리기. 키는 shared/ipc.ts의 INVOKE_PATHS와 같아야 한다(타입으로 강제). 모든 입력은 .strict(). */
 export function createRoutes(deps: RouteDeps): { readonly [K in InvokePath]: Route } {
@@ -52,5 +62,19 @@ export function createRoutes(deps: RouteDeps): { readonly [K in InvokePath]: Rou
       deps.index.start(input?.sourceId),
     ),
     'index.status': route(NoInput, () => deps.index.status()),
+    'search.query': route(
+      z
+        .object({
+          query: z.string().trim().min(1).max(200),
+          sourceId: SourceId.optional(),
+          tag: z.string().trim().min(1).max(64).optional(),
+          format: z.enum(['md', 'pdf']).optional(),
+          page: z.number().int().min(1).max(1000).optional(),
+        })
+        .strict(),
+      (input) => deps.brain.search(input),
+    ),
+    'doc.preview': route(z.object({ docId: DocId }).strict(), (input) => deps.brain.preview(input.docId)),
+    'doc.openExternal': route(z.object({ docId: DocId }).strict(), (input) => deps.brain.openExternal(input.docId)),
   };
 }

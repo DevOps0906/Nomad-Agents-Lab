@@ -24,6 +24,8 @@
 
 - 서체: 한국어 본문 Pretendard Variable. 숫자·금액·경로·실행 로그는 `--font-mono`(JetBrains Mono 또는 Cascadia Mono).
 - 사이드바 폭도 구간별 토큰(`--layout-sidebar`: 220 / 200 / 220px)으로 둔다.
+- 추가 토큰(task-020, 값은 `design/tokens/tokens.css`): `--layout-rail`(56px, 767px 이하 사이드바 아이콘 레일) · `--layout-search-min`(200px) · `--layout-result-min`(280px)·`--layout-result-min-narrow`(240px) · `--layout-preview-max-height`(40vh) · `--size-skeleton-height`(64px) · `--border-width`(1px).
+- Fluent 컨트롤(Input·Select·Button·Tab) 글자 크기는 테마 오버라이드(`fontSizeBase300`→`--text-body`, `fontSizeBase200`→`--text-caption`)로 3구간 토큰을 따른다.
 
 ## 3. 색 (라이트·다크 모두 같은 이름)
 - 본문 글자·버튼 글자: WCAG AA 4.5:1 이상. 아이콘·입력 경계: 3:1 이상.

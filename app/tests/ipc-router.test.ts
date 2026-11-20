@@ -31,6 +31,11 @@ function fakeDeps() {
       start: vi.fn(() => ({ jobIds: [] })),
       status: vi.fn(() => ({ running: false, jobs: [], failures: [] })),
     },
+    brain: {
+      search: vi.fn(() => ({ items: [], page: 1, hasMore: false })),
+      preview: vi.fn(),
+      openExternal: vi.fn(async () => ({ opened: true })),
+    },
   } satisfies RouteDeps;
 }
 const productionRoutes = createRoutes(fakeDeps());
@@ -47,12 +52,15 @@ describe('IPC 허용 목록(Main)', () => {
       'index.preview',
       'index.start',
       'index.status',
+      'search.query',
+      'doc.preview',
+      'doc.openExternal',
     ]);
   });
 
   it('허용 목록 밖 경로는 신뢰 프레임에서 와도 E_VALIDATION으로 거부한다', async () => {
     const handler = createInvokeHandler({ routes: productionRoutes, isTrustedUrl });
-    for (const path of ['settings.set', 'search.query', 'shell.openExternal', '', 42, null, undefined]) {
+    for (const path of ['settings.set', 'graph.get', 'shell.openExternal', '', 42, null, undefined]) {
       await expect(handler(trusted, path, {})).resolves.toEqual({ ok: false, error: { code: 'E_VALIDATION' } });
     }
   });

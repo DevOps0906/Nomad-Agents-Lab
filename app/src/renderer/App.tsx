@@ -4,6 +4,7 @@ import type { EnvCheckResult, SourceItem } from '../shared/ipc';
 import { invoke } from './api';
 import { IndexPanel } from './IndexPanel';
 import { Onboarding } from './Onboarding';
+import { SearchList } from './SearchList';
 import { darkTheme, lightTheme } from './theme';
 
 /** 좌측 내비 항목(docs/03_SCREENS_UX.md S-02 nav). 화면 내용은 각 기능 작업에서 채운다. */
@@ -23,19 +24,25 @@ const useStyles = makeStyles({
     display: 'grid',
     gridTemplateColumns: 'var(--layout-sidebar) 1fr',
     height: '100%',
+    // 767px 이하: 사이드바는 아이콘 레일(글자 첫 음절)로 접는다(DESIGN.md 2장).
+    '@media (max-width: 767px)': { gridTemplateColumns: 'var(--layout-rail) 1fr' },
   },
   nav: {
     backgroundColor: 'var(--color-surface)',
-    borderRight: '1px solid var(--color-border)',
+    borderRight: 'var(--border-width) solid var(--color-border)',
     paddingTop: 'calc(var(--spacing) * 4)',
     paddingInline: 'calc(var(--spacing) * 2)',
+    '@media (max-width: 767px)': { paddingInline: 0, display: 'grid', justifyItems: 'center', alignContent: 'start' },
   },
+  full: { '@media (max-width: 767px)': { display: 'none' } },
+  short: { display: 'none', '@media (max-width: 767px)': { display: 'inline' } },
   brand: {
     display: 'block',
     fontSize: 'var(--text-h2)',
     fontWeight: 600,
     paddingInline: 'calc(var(--spacing) * 3)',
     paddingBottom: 'calc(var(--spacing) * 4)',
+    '@media (max-width: 767px)': { paddingInline: 0, textAlign: 'center' },
   },
   main: {
     padding: 'calc(var(--spacing) * 6)',
@@ -92,7 +99,12 @@ function Shell() {
   return (
     <div className={styles.shell}>
       <nav className={styles.nav} aria-label="주 메뉴">
-        <Text className={styles.brand}>SSR+</Text>
+        <Text className={styles.brand}>
+          <span className={styles.full}>SSR+</span>
+          <span className={styles.short} aria-hidden="true">
+            S+
+          </span>
+        </Text>
         <TabList
           vertical
           selectedValue={selected}
@@ -101,15 +113,24 @@ function Shell() {
           }}
         >
           {NAV_ITEMS.map((item) => (
-            <Tab key={item.id} value={item.id}>
-              {item.label}
+            <Tab key={item.id} value={item.id} aria-label={item.label} title={item.label}>
+              <span className={styles.full}>{item.label}</span>
+              <span className={styles.short} aria-hidden="true">
+                {item.label.charAt(0)}
+              </span>
             </Tab>
           ))}
         </TabList>
       </nav>
       <main className={styles.main}>
         <h1 className={styles.title}>{current.label}</h1>
-        {selected === 'S-02' ? <IndexPanel /> : <p className={styles.muted}>이 화면은 이후 작업에서 구현합니다.</p>}
+        {selected === 'S-02' ? (
+          <IndexPanel />
+        ) : selected === 'S-03' ? (
+          <SearchList />
+        ) : (
+          <p className={styles.muted}>이 화면은 이후 작업에서 구현합니다.</p>
+        )}
       </main>
     </div>
   );

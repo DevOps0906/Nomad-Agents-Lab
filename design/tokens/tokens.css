@@ -71,6 +71,13 @@
   --layout-sidebar: 220px;
   --layout-min-width: 720px;          /* 핵심 플로우가 동작하는 최소 창 폭 */
   --layout-graph-min-height: 360px;
+  --layout-rail: 56px;                /* 767px 이하 아이콘 레일 폭 */
+  --layout-search-min: 200px;         /* S-03 검색 입력 최소 폭 */
+  --layout-result-min: 280px;         /* S-03 결과 목록 열 최소 폭(태블릿 이상) */
+  --layout-result-min-narrow: 240px;  /* S-03 결과 목록 열 최소 폭(태블릿 구간) */
+  --layout-preview-max-height: 40vh;  /* 미리보기 본문 카드 안 스크롤 상한 */
+  --size-skeleton-height: 64px;       /* 로딩 스켈레톤 줄 높이 */
+  --border-width: 1px;
 }
 
 /* 반응형 3구간 — 모바일 ~767 / 태블릿 768~1199 / 데스크톱 1200~ */
