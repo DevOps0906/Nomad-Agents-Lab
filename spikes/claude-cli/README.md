@@ -38,3 +38,27 @@ HOST_TOOLS=blocklist node spikes/claude-cli/host.mjs tools A        # 예전 차
 
 ## 로그
 `.nomad/logs/task-004/<시나리오>-<조건>.summary.json`(브리지 요청·응답 1:1, 도구 호출, 파일 시스템 결과, init 요약)과 `.stream.jsonl`(CLI 출력 원문, 이메일·조직 ID 마스킹).
+
+## task-012 1단계 — 로컬 HTTP MCP 브리지 재검증
+named pipe + stdio 브리지 대신 앱 Main 안의 HTTP MCP 서버 하나로 권한 질의를 받는다(사용자 결정). 결과 표는 `docs/02_ARCHITECTURE.md` §3.1 "task-012 HTTP 브리지".
+
+| 파일 | 역할 |
+|---|---|
+| `http-host.mjs` | `startBridgeServer({decide, timeoutMs, maxBody, log})`. `node:http`만으로 MCP Streamable HTTP 최소 구현(`initialize`·`tools/list`·`tools/call`·`ping`, 알림 202, GET 405, 응답은 `application/json` 단건). 127.0.0.1 무작위 포트, 실행별 토큰(`Authorization: Bearer`, `timingSafeEqual`), Host는 `127.0.0.1:<port>`만, Origin 있으면 403, 본문 1 MiB 상한(413), 401에 `WWW-Authenticate` 없음, 요청별 타이머 후 deny, `tool_use_id`당 결정 1회, `close()`로 토큰 폐기 |
+| `http-host.test.mjs` | Host 위조·Origin·토큰 틀림/없음·본문 초과·fail-closed·중복 tool_use_id·동시 요청 다중화(원격 없음) |
+| `http-run.mjs` | 격리 실행기. `%TEMP%/t012-*` 빈 cwd, mcp-config는 실행 폴더 파일(type http + 토큰 헤더, argv에 토큰 없음, 실행 후 폴더째 삭제), env 허용 목록 + `NO_PROXY=127.0.0.1,localhost` + `DISABLE_AUTOUPDATER=1`(`MCP_TOOL_TIMEOUT`·`MCP_TIMEOUT`·`NODE_OPTIONS` 제외) |
+
+```sh
+node --test spikes/claude-cli/http-host.test.mjs     # 원격 없음
+node spikes/claude-cli/http-run.mjs init              # 원격 없음 — ④ init 도구·mcp_servers, CLI가 보내는 HTTP 요청
+node spikes/claude-cli/http-run.mjs badtoken          # 원격 없음 — ③ 401 때 OAuth 탐색 여부
+node spikes/claude-cli/http-run.mjs multi             # 원격 1 — ① allow·deny·updatedInput, ⑤ 병렬 Write, ⑥
+node spikes/claude-cli/http-run.mjs pread             # 원격 1 — ⑤ 승인 폴더 밖 병렬 Read
+node spikes/claude-cli/http-run.mjs badwrite          # 원격 1 — ③ 보강: 브리지 failed 상태에서 Write
+node spikes/claude-cli/http-run.mjs delay             # 원격 1 — ② 응답 HOLD_MS(기본 310초) 지연
+RUN_MCP_TOOL_TIMEOUT=400000 RUN_TAG=mtt400k node spikes/claude-cli/http-run.mjs delay   # 원격 1 — ② 대체안: 앱이 MCP_TOOL_TIMEOUT을 직접 지정
+RUN_SERVER_TIMEOUT=360000 RUN_TAG=srvto360k node spikes/claude-cli/http-run.mjs delay  # 원격 1 — ② 대체안: mcp-config 서버 항목 "timeout"
+```
+- 공통 인자: `-p --output-format stream-json --verbose --model haiku --max-turns 4 --no-session-persistence --setting-sources "" --strict-mcp-config --mcp-config <파일> --permission-prompt-tool mcp__ssrbridge__permission_prompt --tools Read,Grep,Glob,Write,Edit --add-dir <extra>`.
+- 원격 실행은 `.nomad/logs/task-012/remote-slots/<n>`(10개)을 `wx`로 잡아야 시작하고 `remote-count.log`에 남는다.
+- 로그: `.nomad/logs/task-012/<시나리오>.summary.json`(HTTP 요청 전부·결정·도구 호출 시각·파일 결과·새로 생긴 `~/.claude/projects` 폴더)과 `.stream.jsonl`(CLI 출력, 홈 경로·이메일·조직 ID 마스킹).

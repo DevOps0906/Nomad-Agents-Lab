@@ -25,7 +25,7 @@
 |---|---|---|---|
 | Renderer | Main | Preload가 노출한 A-01~A-17 `invoke`, A-13 이벤트 구독 | `nodeIntegration`, 원격 콘텐츠 로드, `ipcRenderer` 직접 노출, 임의 채널 |
 | Main(IPC 라우터) | 서비스 | 함수 호출(스키마 검증 통과 후) | Renderer가 준 경로·명령 인자를 검증 없이 사용, Renderer 경로 입력(A-02·A-17 새 경로는 Main이 연 대화상자 결과만) |
-| 소스·색인 | 연결 폴더 | 읽기 전용 fs. 기본 제외: 숨김 폴더, `.git`, `node_modules`, 파일 크기 상한 초과(값 팀장 결정 필요) | 원본 쓰기·이동·삭제, 연결 폴더 밖 경로(정규화 후 접두 검사) |
+| 소스·색인 | 연결 폴더 | 읽기 전용 fs. 기본 제외: 숨김 폴더, `.git`, `node_modules`, 파일 크기 상한 초과(5MB, PRD Q14) | 원본 쓰기·이동·삭제, 연결 폴더 밖 경로(정규화 후 접두 검사) |
 | 실행 관리자 | Claude Code 어댑터 | 확정된 범위 객체 1개 전달 | Renderer 입력을 CLI 인자로 직접 전달 |
 | Claude Code 어댑터 | `claude` CLI | `spawn`(셸 없음, 인자 배열), 프롬프트는 stdin | 셸 문자열 조립, API 키 보관·주입 |
 | 권한 브리지 | 실행 관리자 | 내부 호출(대기 중 요청 1건 = 응답 1건) | 사용자 응답 없이 자동 허용 |
@@ -45,7 +45,7 @@
 | 도구(1차 고정) | 허용 목록 `--tools Read,Grep,Glob,Write,Edit`만 노출한다(사용자 결정 2026-11-20 — 차단 목록 방식은 Agent·Skill이 브리지를 우회해 기각, 3.1 ⑦). `Read`·`Grep`·`Glob`은 승인 폴더(cwd·`--add-dir`) 안에서 브리지 없이 자동 허용되고, 승인 폴더 밖 경로만 브리지로 온다 → 앱은 실제 경로가 승인 폴더 밖이면 거부. `Write`·`Edit`는 항상 브리지를 거치며 실행별 출력 폴더 안만 허용(실제 경로 판정 — 3.1 ③, 출력 폴더 위치는 팀장 결정 필요) |
 | MCP | 1차는 MCP 사용 안 함. 항상 `--strict-mcp-config` + 앱이 만든 설정(앱의 권한 브리지 1개만 등록)으로 사용자 MCP를 차단(T-03 통과 — 3.1). 사용자 MCP 연결은 2차(ADR-0006) |
 | 권한 질의 | `--permission-prompt-tool <권한 브리지 도구명>` → S-07에서 승인·거부(A-10). 왕복 동작 T-01 통과(3.1). CLI는 시간 초과를 하지 않으므로 앱이 요청마다 **5분 무응답이면 거부로 확정**하고, 그 뒤 들어온 승인은 무시한다(Q19, 사용자 결정 2026-11-20) |
-| 회차 제한 | `--max-turns`(기본값 팀장 결정 필요) |
+| 회차 제한 | `--max-turns 20`(2026-11-20 팀장 결정, PRD Q16) |
 | 입력 | 스킬명 + 사용자 입력을 프롬프트로 stdin 전달(ADR-0002) |
 | 출력 | 줄 단위 JSON 파싱 → `run_events` 저장 → A-13 구독으로 Renderer 전달. 파싱 실패 줄은 `error` 이벤트로 기록 |
 | 취소 | A-11 → 프로세스 트리 종료(Windows는 트리 단위 종료 필요) → 상태 `cancelled` |
@@ -92,6 +92,21 @@
 - 로그: 도구 결과의 파일 내용, 사용자 홈 경로·사용자명, 이메일·조직 ID를 마스킹한 뒤 저장(`auth status` 원문 저장 금지).
 - CLI는 `--no-session-persistence`여도 `~/.claude/projects/<cwd>` 폴더를 만든다 → 제품 고지 또는 정리 정책 필요.
 
+#### task-012 HTTP 브리지 재검증 (2026-11-20, CLI 2.1.323 · Node 26.13.1)
+방식: Main 대역 안 로컬 HTTP MCP 서버(`spikes/claude-cli/http-host.mjs`, 의존성 0) + `--mcp-config` type http·`Authorization: Bearer` 헤더(설정 파일로 전달). 조건 A·`--tools Read,Grep,Glob,Write,Edit`·env 허용 목록·`NO_PROXY`. 재현: `spikes/claude-cli/README.md` "task-012 1단계", 로그: `.nomad/logs/task-012/`. 원격 실행 6회(haiku, 상한 10, 재시도 0), 원격 없는 실행 2회. 단위 `node --test spikes/claude-cli/` 34건(HTTP 12건 포함).
+
+| 항목 | 결과 | 근거(로그)·대체안 |
+|---|---|---|
+| CLI HTTP 접속 모양 | 확인 | `server/discover`(우리 서버는 method not found 응답) → `initialize` → `notifications/initialized` → `GET /mcp`(SSE 시도, 405 응답에도 정상 진행) → `tools/list`. Host=`127.0.0.1:<port>`, Origin 없음 → 방어 규칙과 충돌 없음(`init.summary.json`) |
+| ① 왕복 allow·deny·updatedInput | 통과 | `a-deny.txt` deny → 파일 없음·`permission_denials` 1건, `b-allow.txt` 생성, `c-orig.txt` → `c-rewritten.txt`로 생성. 요청·결정 1:1(`multi.summary.json`) |
+| ② 응답 5분 지연 | 실패 → 대체안 통과 | 기본값(`MCP_TOOL_TIMEOUT` 미설정): HTTP 도구 호출을 **60.0초에 CLI가 끊음**(`The operation timed out`, 도구 오류 — deny가 아님), 모델이 새 tool_use_id로 1회 재시도 → 다시 60초에 끊김, 파일 없음(`delay.summary.json`; stdio 브리지는 90초에도 안 끊겼음). `MCP_TOOL_TIMEOUT=400000`을 넣으면 60초 상한은 풀리지만 별도의 **무응답 감시 300초**에 끊김(`no response or progress for 300s`, 안내: 서버별 `"timeout"` 또는 `CLAUDE_CODE_MCP_TOOL_IDLE_TIMEOUT`, `delay-mtt400k.summary.json`). **mcp-config 서버 항목 `"timeout": 360000`만 넣으면(env 추가 없음) 310초 뒤 allow가 반영되어 파일 생성**(`delay-srvto360k.summary.json`) → 대체안: 앱 mcp-config에 `timeout` > 5분(예 360000) 지정, 5분 확정 거부는 앱 타이머가 먼저 낸다. 상한은 CLI 버전에 따라 바뀔 수 있어 앱은 클라이언트 연결 끊김(요청 취소)을 받으면 그 요청을 거부로 닫고 S-07 질의를 내린다 |
+| ③ 401·잘못된 토큰 | 통과(OAuth 탐색 없음) | 401(WWW-Authenticate 없음) 2회 후 `/.well-known/*`·`/register` 요청 0건, init `ssrbridge: failed`, 자격 파일 변경 없음(`badtoken.summary.json`). 이 상태에서 Write 지시 → `permission_prompt not found` 도구 오류, 파일 없음, `result` 이벤트 없이 종료 코드 1(`badwrite.summary.json`) → **앱은 init의 브리지 status가 `connected`가 아니면 즉시 실행 실패 처리** |
+| ④ `--strict-mcp-config`·init 도구 | 통과 | init `mcp_servers`=ssrbridge(connected, source dynamic) 1개, `tools`=Edit·Glob·Grep·Read·Write 5개(`mcp__*` 없음) — 모든 실행 동일 |
+| ⑤ 병렬 권한 요청 | 통과(도구별 차이) | 승인 폴더 밖 Read 3개(한 메시지) → `tools/call` 3건이 0.2초 간격으로 겹쳐 도착, 요청별 4초 후 각각 deny(`pread.summary.json`, 출력에 파일 내용 0건). Write 3개(한 메시지) → CLI가 **직렬로** 질의(앞 응답 뒤에 다음 요청, `multi.summary.json`) → 앱 5분 타이머는 요청마다, 최악 대기는 요청 수 × 5분 |
+| ⑥ 허용 목록에서 Write 브리지 경유 | 통과 | cwd 아래 출력 폴더 Write 3건 모두 브리지 질의 후에만 실행(자동 허용 없음, permissionMode default) |
+| 노출 면 방어 | 통과(단위) | Host 위조 5종·Origin 3종 403, 토큰 틀림·없음·형식 다름 401, 본문 초과 413, 거부 요청은 결정 함수 미호출, 같은 tool_use_id 재요청 deny, `close()` 후 접속 불가(`http-host.test.mjs`) |
+| CLI 부수 기록 | 주의 | 실행마다 `~/.claude/projects/C--Users-<user>-AppData-Local-Temp-t012-<시나리오>-<무작위>-ws` 생성(원격 없는 실행 포함), `~/.claude.json` 갱신 시각 바뀜 |
+
 
 ## 4. 주요 흐름
 | 흐름 | 순서 | 화면 · IPC |
@@ -108,5 +123,5 @@
 - 원본은 연결 폴더에 그대로 둔다. DB에는 메타데이터·추출 텍스트·관계·실행 기록만([`05_DATA_MODEL.md`](05_DATA_MODEL.md)).
 - 앱의 색인·저장은 로컬이지만 Claude Code CLI 실행은 원격 AI 처리를 수반할 수 있다. S-05의 매 실행 동의를 거치지 않은 실행은 Main에서 거부한다. 폴더 승인만으로 사전에 정확한 읽기 파일 목록을 보장하지 않는다는 점을 UI에 표시한다.
 - 데이터 위치 변경(A-17): 새 위치는 Main 대화상자 결과만 → 새 위치로 복사 → 검증 → 다음 재시작 때 부트 설정 전환. 원본은 앱이 지우지 않고 사용자가 삭제한다.
-- 실행 기록 보존 기간 기본값: **팀장 결정 필요**(S-08에서 사용자가 변경).
+- 실행 기록 보존 기간 기본값: 30일([PRD Q6](01_PRD.md#7), 2026-11-20 사용자 결정)(S-08에서 사용자가 변경).
 - 비밀값 저장 대상 없음(ADR-0001). 2차 MCP/API 연결 시 OS 보호 저장소를 다시 검토한다.
