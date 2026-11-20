@@ -15,18 +15,23 @@ Electron 45.4.1 · React 19.3.1 · TypeScript 7.0.2 · Vite 8.3.8(electron-vite 
 | 개발용 스모크(CSP 위반·Fluent 스타일 측정, 화면 저장) | `npm run build && npm run smoke -- <출력폴더>` |
 | 패키지(Windows, 설치 파일 없이 폴더) | `npm run package` → `dist/win-unpacked/SSR.exe` |
 | 퓨즈 확인 | `npm run fuses:read` |
+| ERD 재생성(스키마 바뀌면, 저장소 루트에서) | `sql2erd app/migrations -o docs/diagrams/erd.mmd` |
+| DB 패키지 스모크 | 아래 "DB" 절 |
 
 ## 구조
 | 경로 | 역할 |
 |---|---|
-| `src/main/index.ts` | 앱 수명주기, 단일 인스턴스 잠금, `app://` 프로토콜, 세션 잠금(권한 요청 거부·외부 네트워크 차단), 창 생성 |
+| `src/main/index.ts` | 앱 수명주기(시작 때 `bootDataStore`로 DB 열기·재시작 정리, 종료 때 닫기 — 실패는 로그·상태만, S-01 연결은 task-015), 단일 인스턴스 잠금, `app://` 프로토콜, 세션 잠금(권한 요청 거부·외부 네트워크 차단), 창 생성 |
 | `src/main/security.ts` | webPreferences 고정값, 신뢰 출처 검사, CSP, `app://` 경로 해석, navigation·새 창·webview 차단 |
 | `src/main/ipc/router.ts` | IPC 라우터: `senderFrame` 확인 → 허용 목록 → zod 입력 검증 → 처리 → 오류 코드 |
 | `src/main/ipc/routes.ts` | 허용 경로 처리기(현재 비어 있음, A-01~A-17은 기능 작업에서 추가) |
 | `src/preload/index.ts` | `window.ssr.invoke(path, input)` 하나만 노출. 허용 목록 밖은 Main으로 보내지 않음 |
 | `src/shared/ipc.ts` | 채널 이름·허용 경로 목록·결과 타입·오류 코드(Preload와 Main 공용) |
 | `src/renderer/` | 앱 셸·좌측 내비, `theme.ts`(tokens.css → Fluent 테마 오버라이드) |
-| `tests/` | Main IPC 거부·senderFrame·하드닝·CSP·경로 해석·preload 테스트 |
+| `src/main/db/` | SQLite 열기(WAL·FK·버전 검사·백업·마이그레이션), FTS 검색·본문 쓰기, 재시작 정리 |
+| `src/main/boot/` | 부트 설정(`userData/boot_config.json`) 읽기·원자적 쓰기, 시작 흐름·대기 중 전환·위치 경고 |
+| `migrations/` | 순번 SQL(`NNNN_name.sql`, 전진 전용). ERD는 `docs/diagrams/erd.mmd` |
+| `tests/` | Main IPC 거부·senderFrame·하드닝·CSP·경로 해석·preload, DB·부트 테스트. `tests/smoke/`는 DB 패키지 스모크 진입점 |
 
 ## 보안 설정 요약
 - webPreferences: `contextIsolation`·`sandbox` 켬, `nodeIntegration` 끔, `webSecurity` 유지, `webviewTag` 끔.
@@ -41,3 +46,17 @@ Electron 45.4.1 · React 19.3.1 · TypeScript 7.0.2 · Vite 8.3.8(electron-vite 
 
 ## 디자인 토큰
 `design/tokens/tokens.css`(정본, 읽기만)를 Renderer에서 import한다. Tailwind를 쓰지 않으므로 빌드 플러그인(`electron.vite.config.mts`의 `ssr-tokens-css`)이 `@theme {`를 `:root {`로만 바꾼다. Fluent 테마는 `webLightTheme`/`webDarkTheme`에 `var(--color-*)` 값을 덮어쓴다(`src/renderer/theme.ts`). 근거(승인됨): tokens.css 머리말이 webLightTheme/webDarkTheme 오버라이드를 원천으로 지정했고, createLightTheme용 브랜드 16단계 색은 토큰에 없다.
+
+## DB (task-008)
+better-sqlite3 13.2.0(SQLite 3.54.1, FTS5 trigram). 파일은 데이터 위치 폴더의 `ssr.db` 1개, 위치는 DB 밖 `boot_config.json`.
+- **테스트 런타임**: better-sqlite3 13.2.0은 N-API 사전 빌드(`prebuilds/<platform>-<arch>.node`)를 함께 배포해 시스템 Node(26.13.1)와 Electron 45.4.1(Node 24.22.3) ABI 모두에서 같은 파일이 그대로 동작한다(2026-11-20 실측). 그래서 `npm test`는 시스템 Node에서 실행하고 `ELECTRON_RUN_AS_NODE`·재빌드를 쓰지 않는다. `@electron/rebuild`는 설치하지 않았고, electron-builder도 `npmRebuild: false`.
+- **번들**: Main은 의존성을 번들하므로(`externalizeDeps: false`) better-sqlite3 기본 addon 탐색(`__dirname` 기준)이 깨진다. Main에서는 `openDatabase(file, { nativeBinding: bundledNativeBindingPath(__dirname) })`로 addon을 직접 불러 넘긴다. 패키지에는 `prebuilds/win32-*.node`만 싣고 `asarUnpack`으로 asar 밖에 둔다.
+- **마이그레이션**: `migrations/*.sql`을 빌드 때 번들에 넣는다(`import.meta.glob ?raw`). 스키마 버전 정본은 `PRAGMA user_version` 하나. 적용할 파일이 있으면 backup API로 `ssr.db.v<이전>-<UTC시각>.bak`를 먼저 만들고, `user_version`이 앱보다 높으면 열지 않는다. 적용한 파일은 고치지 않고 다음 번호를 추가한다.
+- **검색**: 3글자 이상 검색어는 `doc_fts MATCH`, 3글자 미만이 섞이면 LIKE 대체 경로(`src/main/db/fts.ts`). `doc_fts`는 documents 트리거로 동기화한다.
+- **DB 패키지 스모크**(패키지된 Electron에서 addon 로드·마이그레이션·FTS·재시작 열기 확인, 임시 폴더만 사용):
+  ```
+  npm run build
+  npx electron-vite build --config tests/smoke/electron.vite.smoke.mts
+  npx electron-builder --win dir --config.directories.output=<임시폴더> --config.extraMetadata.main=out/smoke/db-smoke.js
+  <임시폴더>/win-unpacked/SSR.exe   # 출력 "[db-smoke] {"ok":true,...}", 종료 코드 0
+  ```

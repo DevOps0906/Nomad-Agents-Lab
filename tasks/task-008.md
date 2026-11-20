@@ -19,8 +19,8 @@
 - 화면
 
 ## 완료 조건 (실행 가능한 확인)
-- [ ] 마이그레이션 왕복 테스트 통과
-- [ ] `mmd-check docs/diagrams/erd.mmd` 통과
+- [x] 마이그레이션 왕복 테스트 통과
+- [x] `mmd-check docs/diagrams/erd.mmd` 통과
 
 ## 계획 보완 (2026-11-20, challenger REVISE 반영 — 팀장 확정)
 - 마이그레이션은 **전진 전용** + 적용 전 DB 백업(SQLite backup API, WAL 포함) + `user_version`이 앱보다 높으면 열기 거부. down 마이그레이션 만들지 않음. "왕복 테스트" = 빈 DB→최신 적용→재실행 무변경(멱등) 확인.

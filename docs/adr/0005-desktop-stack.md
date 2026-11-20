@@ -18,7 +18,7 @@
 | 언어 | typescript | 7.0.2 | Apache-2.0 | 린트·도구 호환은 W1(task-007)에서 확인 |
 | 번들러 | vite · @vitejs/plugin-react | 8.3.8 · 6.3.0 | MIT | plugin 요구 범위 vite ^8 충족 |
 | 컴포넌트 | @fluentui/react-components | 9.75.2 | MIT | |
-| 저장 | better-sqlite3 (+ FTS5) | 13.2.0 | MIT | 네이티브 모듈 → @electron/rebuild 4.2.1로 Electron용 재빌드 |
+| 저장 | better-sqlite3 (+ FTS5) | 13.2.0 | MIT | N-API 사전 빌드로 Node·Electron 공용, @electron/rebuild 불필요(미설치) |
 | 패키징 | electron-builder | 26.18.0 | MIT | |
 - 3D·2D 그래프 렌더러는 task-017 결과로 정한다. 설치는 W1(task-007)에서 하며 lockfile을 커밋한다.
 

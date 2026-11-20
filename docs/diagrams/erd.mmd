@@ -1,0 +1,108 @@
+erDiagram
+  sources {
+    INTEGER id PK
+    TEXT kind
+    TEXT path
+    TEXT label
+    TEXT status
+    TEXT created_at
+    TEXT last_indexed_at
+  }
+  documents {
+    INTEGER id PK
+    INTEGER source_id FK
+    TEXT rel_path
+    TEXT title
+    TEXT format
+    INTEGER size
+    INTEGER mtime
+    TEXT content_hash
+    TEXT status
+    TEXT error
+    TEXT indexed_at
+  }
+  links {
+    INTEGER id PK
+    INTEGER src_doc_id FK
+    INTEGER dst_doc_id FK
+    TEXT dst_raw
+    TEXT kind
+    TEXT created_at
+  }
+  tags {
+    INTEGER doc_id PK,FK
+    TEXT name PK
+    TEXT origin
+  }
+  skills {
+    INTEGER id PK
+    TEXT name
+    TEXT root
+    TEXT path
+    TEXT description
+    TEXT ssr_json
+    TEXT content_hash
+    INTEGER mtime
+    INTEGER valid
+    TEXT error
+    TEXT scanned_at
+  }
+  grants {
+    INTEGER id PK
+    TEXT skill_name
+    TEXT folders_json
+    TEXT tools_json
+    TEXT mcp_json
+    TEXT created_at
+    TEXT last_used_at
+    TEXT revoked_at
+  }
+  runs {
+    INTEGER id PK
+    INTEGER grant_id FK
+    INTEGER retry_of FK
+    TEXT skill_name
+    TEXT skill_hash
+    TEXT input_json
+    TEXT scope_json
+    TEXT provider_label
+    TEXT external_processing_consent_at
+    TEXT status
+    TEXT error_code
+    TEXT claude_version
+    string more_5_cols
+  }
+  run_events {
+    INTEGER run_id PK,FK
+    INTEGER seq PK
+    TEXT ts
+    TEXT type
+    TEXT request_id
+    TEXT payload_json
+  }
+  settings {
+    TEXT key PK
+    TEXT value_json
+    TEXT updated_at
+  }
+  index_jobs {
+    INTEGER id PK
+    INTEGER source_id FK
+    TEXT started_at
+    TEXT finished_at
+    TEXT status
+    TEXT counts
+  }
+  usage_events {
+    INTEGER id PK
+    TEXT type
+    TEXT ts
+  }
+  sources ||--o{ documents : "source_id"
+  documents ||--o{ links : "src_doc_id"
+  documents ||--o{ links : "dst_doc_id"
+  documents ||--o{ tags : "doc_id"
+  grants ||--o{ runs : "grant_id"
+  runs ||--o{ runs : "retry_of"
+  runs ||--o{ run_events : "run_id"
+  sources ||--o{ index_jobs : "source_id"

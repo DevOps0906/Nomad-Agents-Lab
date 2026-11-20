@@ -1,4 +1,4 @@
-# electron-builder 26.18.0 — 패키징 스모크(task-007). asarUnpack은 task-008(DB)에서 확장한다.
+# electron-builder 26.18.0 — 패키징 스모크(task-007), DB addon(task-008).
 appId: lab.nomad.ssr
 productName: SSR
 directories:
@@ -7,7 +7,13 @@ files:
   - out/**/*
   - package.json
   - "!node_modules/**/*"
+  # better-sqlite3 JS는 Main 번들에 들어간다. addon(N-API 사전 빌드)만 싣고 asar 밖으로 푼다(bundledNativeBindingPath).
+  - node_modules/better-sqlite3/prebuilds/win32-*.node
 asar: true
+asarUnpack:
+  - node_modules/better-sqlite3/prebuilds/*.node
+# better-sqlite3 13.2.0 addon은 N-API 사전 빌드라 Node·Electron ABI 모두에서 그대로 동작 → 재빌드(node-gyp) 안 함.
+npmRebuild: false
 electronFuses:
   runAsNode: false
   enableCookieEncryption: true

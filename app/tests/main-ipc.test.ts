@@ -25,6 +25,7 @@ vi.mock('electron', () => {
     app: {
       isPackaged: true,
       requestSingleInstanceLock: () => true,
+      getPath: () => 'C:/nonexistent-userData',
       on: () => {},
       whenReady: () => Promise.resolve(),
     },
@@ -40,6 +41,9 @@ vi.mock('electron', () => {
     },
   };
 });
+
+// DB 부팅은 boot/db 테스트가 검증한다. 여기서는 첫 실행(onboarding) 결과만 돌려준다.
+vi.mock('../src/main/boot/start', () => ({ bootDataStore: () => Promise.resolve({ kind: 'onboarding' }) }));
 
 // 제품 허용 목록은 비어 있으므로 zod 검증 경로를 태울 더미 경로 1개만 주입한다(배선은 실제 코드).
 vi.mock('../src/main/ipc/routes', () => ({

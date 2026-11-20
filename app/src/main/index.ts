@@ -1,6 +1,9 @@
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { BrowserWindow, app, ipcMain, net, protocol, session } from 'electron';
+import { BOOT_CONFIG_FILE_NAME } from './boot/config';
+import { type BootResult, bootDataStore } from './boot/start';
+import { bundledNativeBindingPath } from './db/open';
 import { createInvokeHandler, registerIpc } from './ipc/router';
 import { routes } from './ipc/routes';
 import {
@@ -22,6 +25,38 @@ const isTrustedUrl = createTrustedUrlCheck(devServerUrl);
 const rendererRoot = path.join(__dirname, '../renderer');
 
 let mainWindow: BrowserWindow | null = null;
+
+/**
+ * 시작 때 DB 상태. 실패해도 창은 띄우고 상태만 보관한다(S-01 오류 화면 연결은 task-015).
+ * 경로·오류 원문은 Renderer로 보내지 않는다.
+ */
+let bootState: BootResult | { readonly kind: 'error'; readonly reason: 'boot_failed' } | null = null;
+
+async function bootDatabase(): Promise<void> {
+  const configFile = path.join(app.getPath('userData'), BOOT_CONFIG_FILE_NAME);
+  try {
+    bootState = await bootDataStore(configFile, { nativeBinding: bundledNativeBindingPath(__dirname) });
+  } catch (error) {
+    console.error('[ssr] boot failed', error);
+    bootState = { kind: 'error', reason: 'boot_failed' };
+  }
+  if (bootState.kind === 'ready') {
+    const { cleanup, open, warnings, switched } = bootState;
+    log(
+      `db ready user_version=${open.to} migrated_from=${open.from} cleanup=${JSON.stringify(cleanup)}` +
+        ` warnings=${warnings.join(',') || 'none'}${switched ? ` switched=${JSON.stringify(switched)}` : ''}`,
+    );
+  } else {
+    log(`db not opened: ${bootState.kind === 'error' ? bootState.reason : bootState.kind}`);
+  }
+}
+
+function closeDatabase(): void {
+  if (bootState?.kind === 'ready' && bootState.open.db.open) {
+    bootState.open.db.close();
+    log('db closed');
+  }
+}
 
 protocol.registerSchemesAsPrivileged([
   { scheme: APP_SCHEME, privileges: { standard: true, secure: true, supportFetchAPI: true } },
@@ -98,15 +133,18 @@ if (!app.requestSingleInstanceLock()) {
 
   app.on('web-contents-created', (_event, contents) => hardenWebContents(contents));
 
+  app.on('will-quit', closeDatabase);
+
   app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') app.quit();
   });
 
-  void app.whenReady().then(() => {
+  void app.whenReady().then(async () => {
     log(`ready mode=${devServerUrl ? 'dev' : 'prod'}`);
     serveAppProtocol();
     lockDownSession();
     registerIpc(ipcMain, createInvokeHandler({ routes, isTrustedUrl, log }));
+    await bootDatabase();
     createWindow();
     app.on('activate', () => {
       if (BrowserWindow.getAllWindows().length === 0) createWindow();

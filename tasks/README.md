@@ -9,7 +9,7 @@
 | task-005 | 보안 기본 설정(L1) | W0 | — | 낮음 | builder | 완료 |
 | task-006 | 디자인 토큰·DESIGN.md (데스크톱 우선) | W0 | task-003 | 낮음 | designer | 완료 |
 | task-007 | Electron 앱 뼈대·보안 하드닝 | W1 | task-003, task-004, task-005, task-006 | 높음 | builder | 완료 |
-| task-008 | SQLite 스키마·마이그레이션·boot_config | W1 | task-007 | 높음 | builder | 대기 |
+| task-008 | SQLite 스키마·마이그레이션·boot_config | W1 | task-007 | 높음 | builder | 완료 |
 | task-009 | 로컬 폴더 연결·색인 (A-02·A-03) | W2 | task-008 | 높음 | builder | 대기 |
 | task-010 | Second Brain: 검색·3D 그래프·대체 경로·미리보기 (S-03) | W2 | task-009, task-006, task-017 | 높음 | builder | 대기 |
 | task-011 | 스킬 색인·목록 (S-04, A-07·A-08) | W3 | task-008 | 보통 | builder | 대기 |
