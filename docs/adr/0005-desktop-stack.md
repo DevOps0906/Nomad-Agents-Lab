@@ -30,3 +30,6 @@
 | IPC 입력 검증 | zod | 4.6.7 | MIT | |
 | 린트 | oxlint | 1.94.0 | MIT | typescript-eslint 8.73.0은 TS <6.1만 지원 → TS 7과 함께 쓰지 않음 |
 | 퓨즈 확인 | @electron/fuses | 2.1.3 | MIT | |
+| 타입 정의(개발 전용) | @types/react · @types/react-dom | 19.3.0 · 19.3.0 | MIT | 2026-11-20 사용자 승인 |
+
+- npm audit(2026-11-20): moderate 6건 — 모두 electron-builder 하위 `minimatch` DoS(빌드 도구 전용, 앱 런타임 미포함) → 수용, electron-builder 업데이트 시 재확인.

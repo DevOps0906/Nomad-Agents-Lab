@@ -10,7 +10,7 @@ NOMAD Agent OS를 적용해 SSR+ 로컬 우선 개인 AI 업무 시스템(Window
 |---|---|
 | 애플리케이션·프레임워크 | Electron 45.4.1 · React 19.3.1 · TypeScript 7.0.2 · Vite 8.3.8 · Fluent UI v9 9.75.2 (ADR-0005 채택, 설치는 W1) |
 | 데이터베이스·인증 | SQLite + FTS5 (better-sqlite3 13.2.0). 앱 자체 인증 없음 — Claude Code 인증은 CLI가 관리 |
-| 빌드·린트·테스트 명령 | 앱 코드가 추가되면 실제 설정에 맞춰 등록 |
+| 빌드·린트·테스트 명령 | `app/`에서 `npm run typecheck` · `npm run lint`(oxlint) · `npm test`(vitest) · `npm run build`(electron-vite) · `npm run package`(electron-builder dir) — 상세 `app/README.md` |
 | 에이전트 런타임 | Claude Code + 전역 NOMAD 팀 설정 |
 
 ## 3. 작업 원칙

@@ -8,7 +8,7 @@
 | task-004 | 기술 검증 T-01~T-03 (Claude Code CLI) | W0 | — | 높음 | builder | 완료 |
 | task-005 | 보안 기본 설정(L1) | W0 | — | 낮음 | builder | 완료 |
 | task-006 | 디자인 토큰·DESIGN.md (데스크톱 우선) | W0 | task-003 | 낮음 | designer | 완료 |
-| task-007 | Electron 앱 뼈대·보안 하드닝 | W1 | task-003, task-004, task-005, task-006 | 높음 | builder | 대기(W0 완료 후) |
+| task-007 | Electron 앱 뼈대·보안 하드닝 | W1 | task-003, task-004, task-005, task-006 | 높음 | builder | 완료 |
 | task-008 | SQLite 스키마·마이그레이션·boot_config | W1 | task-007 | 높음 | builder | 대기 |
 | task-009 | 로컬 폴더 연결·색인 (A-02·A-03) | W2 | task-008 | 높음 | builder | 대기 |
 | task-010 | Second Brain: 검색·3D 그래프·대체 경로·미리보기 (S-03) | W2 | task-009, task-006, task-017 | 높음 | builder | 대기 |
@@ -29,6 +29,9 @@
 ## 발견한 문제 (범위 밖 — 나중 작업 후보)
 | 날짜 | 위치 | 내용 | 제안 |
 |---|---|---|---|
+| 2026-11-20 | app/electron-builder.yml | 서명 없는 exe에서는 asar 무결성 검증을 퓨즈+asar 동시 교체로 우회 가능 | 배포 작업에서 코드 서명과 함께 처리 |
+| 2026-11-20 | app/src/main/index.ts | 권한 차단 핸들러가 defaultSession에만 걸림 | 새 partition 세션 도입 시 같은 잠금 적용 |
+| 2026-11-20 | app/src/main/security.ts | app:// 핸들러는 번들 안 심볼릭 링크 대상을 검사하지 않음(현재 링크 없음) | 번들에 링크가 생기면 realpath 검사 추가 |
 
 ## 교훈 (다음 작업에 그대로 적용할 것만, 20줄 이내 유지)
 - 제품 스택이나 범위가 정해지기 전에는 템플릿의 예시 기술을 실제 선택처럼 기록하지 않는다.

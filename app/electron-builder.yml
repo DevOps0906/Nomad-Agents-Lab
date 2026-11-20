@@ -1,0 +1,21 @@
+# electron-builder 26.18.0 — 패키징 스모크(task-007). asarUnpack은 task-008(DB)에서 확장한다.
+appId: lab.nomad.ssr
+productName: SSR
+directories:
+  output: dist
+files:
+  - out/**/*
+  - package.json
+  - "!node_modules/**/*"
+asar: true
+electronFuses:
+  runAsNode: false
+  enableCookieEncryption: true
+  enableNodeOptionsEnvironmentVariable: false
+  enableNodeCliInspectArguments: false
+  enableEmbeddedAsarIntegrityValidation: true
+  onlyLoadAppFromAsar: true
+  loadBrowserProcessSpecificV8Snapshot: false
+  grantFileProtocolExtraPrivileges: false
+win:
+  target: dir
