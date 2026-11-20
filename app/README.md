@@ -21,13 +21,14 @@ Electron 45.4.1 · React 19.3.1 · TypeScript 7.0.2 · Vite 8.3.8(electron-vite 
 ## 구조
 | 경로 | 역할 |
 |---|---|
-| `src/main/index.ts` | 앱 수명주기(시작 때 `bootDataStore`로 DB 열기·재시작 정리, 종료 때 닫기 — 실패는 상태로 보관해 env.check가 알림), IPC 서비스 조립(env.check·setDataDir·sources, 폴더 대화상자는 발신 창의 모달), 단일 인스턴스 잠금, `app://` 프로토콜, 세션 잠금(권한 요청 거부·외부 네트워크 차단), 창 생성 |
+| `src/main/index.ts` | 앱 수명주기(종료 때 색인 중단 후 DB 닫기, 시작 때 `bootDataStore`로 DB 열기·재시작 정리, 종료 때 닫기 — 실패는 상태로 보관해 env.check가 알림), IPC 서비스 조립(env.check·setDataDir·sources, 폴더 대화상자는 발신 창의 모달), 단일 인스턴스 잠금, `app://` 프로토콜, 세션 잠금(권한 요청 거부·외부 네트워크 차단), 창 생성 |
 | `src/main/security.ts` | webPreferences 고정값, 신뢰 출처 검사, CSP, `app://` 경로 해석, navigation·새 창·webview 차단 |
 | `src/main/ipc/router.ts` | IPC 라우터: `senderFrame` 확인 → 허용 목록 → zod 입력 검증 → 처리(발신 창 전달) → 오류 코드(`IpcError`), 대화상자 연타 잠금(`createBusyLock`, `E_BUSY`) |
 | `src/main/ipc/routes.ts` | `createRoutes(deps)`: 허용 경로 처리기(env.check·onboarding.setDataDir·sources.list/add/remove, 입력은 모두 `.strict()`) |
 | `src/main/claude/detect/` | Claude Code 점검(A-01): PATH 절대경로 후보(npm 심은 cmd.exe 없이 패키지 실행 파일로), 셸 없음·고정 인자·cwd=userData·10초 초과 시 트리 종료, 버전 숫자 비교(하한 2.1.323), `auth status`는 로그인 여부·인증 방식만 |
 | `src/main/onboarding/` | 경로 검사(`folders.ts`: 원본 입력+realpath 판정, 거부 목록·겹침), 데이터 위치 지정(`service.ts`), env.check 조립(`envCheck.ts`) |
 | `src/main/sources/` | 연결 폴더 list·add·remove(A-02) |
+| `src/main/indexer/` | Markdown 색인(A-03): `walk.ts` 읽기 전용 순회(링크·junction 제외, 기본 제외 규칙, 읽기 실패는 불완전 순회), `parse.ts` 인코딩 판정·선형 스캐너로 제목·링크·태그 추출, `resolve.ts` 같은 소스 안 링크 재해석, `service.ts` 작업 1개 잠금·50개 단위 트랜잭션·증분(size+mtime→해시→parser_version)·완전한 순회에서만 삭제 표시 |
 | `src/preload/index.ts` | `window.ssr.invoke(path, input)` 하나만 노출. 허용 목록 밖은 Main으로 보내지 않음 |
 | `src/shared/ipc.ts` | 채널 이름·허용 경로 목록·결과 타입·오류 코드(Preload와 Main 공용) |
 | `src/renderer/` | 앱 상태 라우팅(점검 중·S-01 마법사·연결 폴더 0개면 3단계 재개·시작 오류·셸), `Onboarding.tsx`(S-01), `theme.ts`(tokens.css → Fluent 테마 오버라이드) |

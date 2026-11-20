@@ -11,6 +11,9 @@ export const INVOKE_PATHS = [
   'sources.list',
   'sources.add',
   'sources.remove',
+  'index.preview',
+  'index.start',
+  'index.status',
 ] as const;
 
 export type InvokePath = (typeof INVOKE_PATHS)[number];
@@ -82,4 +85,64 @@ export interface SourceItem {
 /** source가 null이면 대화상자 취소 */
 export interface SourceAddResult {
   readonly source: SourceItem | null;
+}
+
+// ---- A-03 index.* ----
+/** 파일 단위 실패 사유 코드(원문 오류·경로 일부 없음) */
+export type IndexFileError = 'too_large' | 'binary' | 'read_failed' | 'out_of_scope';
+/** 작업 단위 실패 사유 코드 */
+export type IndexJobError = 'root_missing' | 'root_changed' | 'data_dir_overlap' | 'internal';
+
+export interface IndexPreview {
+  /** 색인 대상 Markdown 파일 수(크기 상한 초과 포함) */
+  readonly targets: number;
+  /** 기본 제외 규칙으로 뺀 항목 수 */
+  readonly excluded: number;
+  /** 크기 상한 초과로 건너뛸 파일 수 */
+  readonly tooLarge: number;
+  /** 루트 확인 실패면 사유, 아니면 null */
+  readonly reason: IndexJobError | null;
+}
+
+export interface IndexStartResult {
+  readonly jobIds: number[];
+}
+
+export interface IndexCounts {
+  readonly total: number;
+  readonly done: number;
+  readonly processed: number;
+  readonly unchanged: number;
+  readonly failed: number;
+  readonly deleted: number;
+  readonly excluded: number;
+  /** 링크·태그 상한(문서당 1000·100)을 넘겨 일부를 버린 문서 수 */
+  readonly truncated: number;
+}
+
+export interface IndexJobItem {
+  readonly jobId: number;
+  readonly sourceId: number;
+  /** partial = 읽지 못한 폴더·파일이 있어 삭제 처리를 하지 않은 불완전 순회 */
+  readonly status: 'running' | 'succeeded' | 'partial' | 'failed' | 'interrupted';
+  readonly startedAt: string;
+  readonly finishedAt: string | null;
+  readonly counts: IndexCounts;
+  readonly reason: IndexJobError | null;
+  /** 읽지 못한 폴더·파일의 소스 기준 경로(최대 50) */
+  readonly unreadable: string[];
+}
+
+export interface IndexFailure {
+  readonly sourceId: number;
+  readonly relPath: string;
+  readonly reason: IndexFileError;
+}
+
+export interface IndexStatus {
+  readonly running: boolean;
+  /** 소스별 최근 작업 1건 */
+  readonly jobs: IndexJobItem[];
+  /** 실패 파일(최대 FAILURE_LIMIT건) */
+  readonly failures: IndexFailure[];
 }

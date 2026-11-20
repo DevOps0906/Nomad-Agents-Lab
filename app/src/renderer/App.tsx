@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Button, FluentProvider, Spinner, Tab, TabList, Text, makeStyles } from '@fluentui/react-components';
 import type { EnvCheckResult, SourceItem } from '../shared/ipc';
 import { invoke } from './api';
+import { IndexPanel } from './IndexPanel';
 import { Onboarding } from './Onboarding';
 import { darkTheme, lightTheme } from './theme';
 
@@ -108,7 +109,7 @@ function Shell() {
       </nav>
       <main className={styles.main}>
         <h1 className={styles.title}>{current.label}</h1>
-        <p className={styles.muted}>이 화면은 이후 작업에서 구현합니다.</p>
+        {selected === 'S-02' ? <IndexPanel /> : <p className={styles.muted}>이 화면은 이후 작업에서 구현합니다.</p>}
       </main>
     </div>
   );

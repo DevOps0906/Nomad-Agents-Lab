@@ -207,20 +207,30 @@ describe('doc_fts 동기화·검색(trigram)', () => {
 });
 
 describe('제약·정리 트리거', () => {
-  it('links: 자기 자신 금지, (src, dst, kind) 중복 금지, 없는 문서(NULL)는 여러 개 허용', async () => {
+  it('links: 자기 자신 금지, (src, dst_key, kind) 중복 금지, 없는 문서(NULL)는 키가 다르면 여러 개 허용', async () => {
     const db = await freshDb();
     const src = addSource(db);
     const a = addDoc(db, src, 'a.md', 'A');
     const b = addDoc(db, src, 'b.md', 'B');
-    const add = db.prepare(`INSERT INTO links (src_doc_id, dst_doc_id, dst_raw, kind, created_at) VALUES (?, ?, ?, ?, ?)`);
-    add.run(a, b, 'b', 'link', NOW);
-    add.run(a, b, 'b', 'manual', NOW);
-    expect(() => add.run(a, b, 'b.md', 'link', NOW)).toThrow(/UNIQUE/);
-    expect(() => add.run(a, a, 'a', 'manual', NOW)).toThrow(/CHECK/);
-    add.run(a, null, 'x', 'link', NOW);
-    add.run(a, null, 'y', 'link', NOW);
+    const add = db.prepare(
+      `INSERT INTO links (src_doc_id, dst_doc_id, dst_raw, dst_key, kind, created_at) VALUES (?, ?, ?, ?, ?, ?)`,
+    );
+    add.run(a, b, 'b', 'w:b.md', 'link', NOW);
+    add.run(a, b, 'b', 'm:2', 'manual', NOW);
+    expect(() => add.run(a, b, 'b.md', 'w:b.md', 'link', NOW)).toThrow(/UNIQUE/);
+    expect(() => add.run(a, a, 'a', 'm:1', 'manual', NOW)).toThrow(/CHECK/);
+    add.run(a, null, 'x', 'w:x.md', 'link', NOW);
+    add.run(a, null, 'y', 'w:y.md', 'link', NOW);
+    expect(() => add.run(a, null, 'Y.md', 'w:y.md', 'link', NOW)).toThrow(/UNIQUE/);
     db.prepare('DELETE FROM documents WHERE id = ?').run(b);
     expect(db.prepare('SELECT count(*) AS n FROM links WHERE dst_doc_id IS NULL').get()).toEqual({ n: 4 });
+  });
+
+  it('documents.rel_path는 같은 소스 안에서 대소문자 무시 유일', async () => {
+    const db = await freshDb();
+    const src = addSource(db);
+    addDoc(db, src, 'Notes/A.md', 'A');
+    expect(() => addDoc(db, src, 'notes/a.md', 'a')).toThrow(/UNIQUE/);
   });
 
   it('소스 삭제 시 grants.folders_json에서 그 id를 뺀다', async () => {

@@ -11,7 +11,7 @@ erDiagram
   documents {
     INTEGER id PK
     INTEGER source_id FK
-    TEXT rel_path
+    TEXT rel_path "COLLATE NOCASE"
     TEXT title
     TEXT format
     INTEGER size
@@ -20,12 +20,14 @@ erDiagram
     TEXT status
     TEXT error
     TEXT indexed_at
+    INTEGER parser_version
   }
   links {
     INTEGER id PK
     INTEGER src_doc_id FK
     INTEGER dst_doc_id FK
     TEXT dst_raw
+    TEXT dst_key "UNIQUE(src_doc_id, dst_key, kind)"
     TEXT kind
     TEXT created_at
   }
@@ -38,7 +40,7 @@ erDiagram
     INTEGER id PK
     TEXT name
     TEXT root
-    TEXT path
+    TEXT path UK "realpath, COLLATE NOCASE"
     TEXT description
     TEXT ssr_json
     TEXT content_hash

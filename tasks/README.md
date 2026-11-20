@@ -11,7 +11,7 @@
 | task-007 | Electron 앱 뼈대·보안 하드닝 | W1 | — | task-003, task-004, task-005, task-006 | 높음 | builder | 완료 |
 | task-008 | SQLite 스키마·마이그레이션·boot_config | W1 | — | task-007 | 높음 | builder | 완료 |
 | task-018 | 첫 실행 최소 (S-01: A-01·데이터 위치·폴더 1개 A-02) | W2 | 1 | task-008 | 높음 | builder (착수 전 challenger) | 완료 |
-| task-019 | Markdown 색인 (A-03 일부, PDF 제외) | W2 | 1 | task-018 | 높음 | builder | 대기 |
+| task-019 | Markdown 색인 (A-03 일부, PDF 제외) | W2 | 1 | task-018 | 높음 | builder | 완료 |
 | task-020 | 목록 검색 화면 (S-03 목록 경로, A-04·A-06) | W2 | 1 | task-019 | 보통 | builder | 대기 |
 | task-011 | 스킬 색인·목록 (S-04, A-07·A-08) | W3 | 1 | task-008, task-020 | 보통 | builder | 대기 |
 | task-012 | Claude Code 어댑터·실행 관리자·권한 브리지 | W3 | 1 | task-004, task-008, task-018 | 높음 | builder (착수 전 challenger) | 대기 |

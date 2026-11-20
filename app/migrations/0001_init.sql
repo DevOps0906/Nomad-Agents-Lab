@@ -14,15 +14,19 @@ CREATE TABLE sources (
 CREATE TABLE documents (
   id INTEGER PRIMARY KEY,
   source_id INTEGER NOT NULL REFERENCES sources (id) ON DELETE CASCADE,
-  rel_path TEXT NOT NULL,
+  -- 같은 소스 안에서 대소문자만 다른 경로는 같은 문서(Windows 파일 시스템 기준).
+  rel_path TEXT NOT NULL COLLATE NOCASE,
   title TEXT NOT NULL,
   format TEXT NOT NULL CHECK (format IN ('md', 'pdf')),
   size INTEGER NOT NULL,
   mtime INTEGER NOT NULL,
   content_hash TEXT NOT NULL,
   status TEXT NOT NULL DEFAULT 'ok' CHECK (status IN ('ok', 'error', 'encrypted', 'deleted')),
+  -- 실패 사유 코드만(too_large·binary·read_failed). 원문 오류·경로는 넣지 않는다.
   error TEXT,
   indexed_at TEXT,
+  -- 이 값이 앱의 현재 파서 버전과 다르면 내용이 같아도 다시 처리한다.
+  parser_version INTEGER NOT NULL DEFAULT 0,
   UNIQUE (source_id, rel_path)
 ) STRICT;
 
@@ -59,10 +63,12 @@ CREATE TABLE links (
   src_doc_id INTEGER NOT NULL REFERENCES documents (id) ON DELETE CASCADE,
   dst_doc_id INTEGER REFERENCES documents (id) ON DELETE SET NULL,
   dst_raw TEXT NOT NULL,
+  -- 정규화한 대상 키. 같은 대상을 가리키는 표기([[a]]·[[a.md]])는 같은 키가 되어 한 행으로 합쳐진다.
+  -- 색인 끝마다 dst_doc_id가 NULL이거나 deleted 문서를 가리키는 행을 이 키로 다시 해석한다.
+  dst_key TEXT NOT NULL,
   kind TEXT NOT NULL CHECK (kind IN ('link', 'manual')),
   created_at TEXT NOT NULL,
-  -- dst_doc_id NULL("없는 문서")끼리는 UNIQUE에서 서로 다른 값으로 취급된다.
-  UNIQUE (src_doc_id, dst_doc_id, kind),
+  UNIQUE (src_doc_id, dst_key, kind),
   CHECK (src_doc_id <> dst_doc_id)
 ) STRICT;
 
@@ -154,7 +160,7 @@ CREATE TABLE index_jobs (
   source_id INTEGER NOT NULL REFERENCES sources (id) ON DELETE CASCADE,
   started_at TEXT NOT NULL,
   finished_at TEXT,
-  status TEXT NOT NULL CHECK (status IN ('running', 'succeeded', 'failed', 'interrupted')),
+  status TEXT NOT NULL CHECK (status IN ('running', 'succeeded', 'partial', 'failed', 'interrupted')),
   counts TEXT
 ) STRICT;
 

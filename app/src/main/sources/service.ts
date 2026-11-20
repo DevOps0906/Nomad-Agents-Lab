@@ -33,7 +33,7 @@ interface SourceRow {
 
 const SELECT_SOURCES = `
   SELECT s.id, s.kind, s.path, s.label, s.status, s.last_indexed_at,
-    (SELECT count(*) FROM documents d WHERE d.source_id = s.id AND d.status <> 'deleted') AS document_count
+    (SELECT count(*) FROM documents d WHERE d.source_id = s.id AND d.status = 'ok') AS document_count
   FROM sources s`;
 
 function toItem(row: SourceRow): SourceItem {

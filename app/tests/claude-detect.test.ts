@@ -187,6 +187,11 @@ describe('계정 정보 비노출', () => {
         }),
         setDataDir: async () => ({ status: 'canceled' }),
         sources: { list: () => [], add: async () => ({ source: null }), remove: () => ({}) },
+        index: {
+          preview: async () => ({ targets: 0, excluded: 0, tooLarge: 0, reason: null }),
+          start: () => ({ jobIds: [] }),
+          status: () => ({ running: false, jobs: [], failures: [] }),
+        },
       }),
       isTrustedUrl: createTrustedUrlCheck(),
       log,

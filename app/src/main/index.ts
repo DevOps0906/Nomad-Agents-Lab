@@ -8,6 +8,7 @@ import { devOverrides } from './boot/devOverrides';
 import { bootDataStore } from './boot/start';
 import { createClaudeChecker, findClaude, findOnPath } from './claude/detect';
 import { bundledNativeBindingPath } from './db/open';
+import { createIndexer } from './indexer/service';
 import { createBusyLock, createInvokeHandler, registerIpc } from './ipc/router';
 import { createRoutes } from './ipc/routes';
 import { createEnvCheck } from './onboarding/envCheck';
@@ -60,7 +61,7 @@ async function bootDatabase(): Promise<void> {
   }
 }
 
-// ---- IPC 서비스(A-01·데이터 위치·A-02) ----
+// ---- IPC 서비스(A-01·데이터 위치·A-02·A-03) ----
 const overrides = devOverrides(app.isPackaged, process.env, findOnPath(process.env, 'node.exe'));
 const exclusive = createBusyLock();
 const policy = (): FolderPolicyContext => ({ env: process.env, home: os.homedir(), userData: app.getPath('userData') });
@@ -113,9 +114,16 @@ const sources = createSources({
   log,
 });
 
-const routes = createRoutes({ envCheck, setDataDir: onboarding.setDataDir, sources });
+const indexer = createIndexer({
+  store: () => (bootState?.kind === 'ready' ? { db: bootState.open.db, dataDir: bootState.dataDir } : null),
+  log,
+});
+
+const routes = createRoutes({ envCheck, setDataDir: onboarding.setDataDir, sources, index: indexer });
 
 function closeDatabase(): void {
+  // 진행 중 색인은 다음 배치부터 멈춘다(작업 행은 재시작 정리에서 interrupted).
+  indexer.stop();
   if (bootState?.kind === 'ready' && bootState.open.db.open) {
     bootState.open.db.close();
     log('db closed');
