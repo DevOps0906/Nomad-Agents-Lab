@@ -4,9 +4,9 @@
 |---|---|---|---|---|---|---|
 | task-001 | NOMAD 멀티에이전트 환경 적용 | W1 | — | 낮음 | builder | 완료 |
 | task-002 | 알파 후 외부 사용자 인터뷰(P4) | W6 | task-016 | 낮음 | 팀장 | 대기(외부 사용자 확대 전) |
-| task-003 | 스택 버전 확정·ADR-0005 채택 | W0 | — | 높음 | 팀장 | 대기 |
-| task-004 | 기술 검증 T-01~T-03 (Claude Code CLI) | W0 | — | 높음 | builder | 대기 |
-| task-005 | 보안 기본 설정(L1) | W0 | — | 낮음 | builder | 대기 |
+| task-003 | 스택 버전 확정·ADR-0005 채택 | W0 | — | 높음 | 팀장 | 완료 |
+| task-004 | 기술 검증 T-01~T-03 (Claude Code CLI) | W0 | — | 높음 | builder | 완료 |
+| task-005 | 보안 기본 설정(L1) | W0 | — | 낮음 | builder | 완료 |
 | task-006 | 디자인 토큰·DESIGN.md (데스크톱 우선) | W0 | task-003 | 낮음 | designer | 대기 |
 | task-007 | Electron 앱 뼈대·보안 하드닝 | W1 | task-003, task-004, task-005, task-006 | 높음 | builder | 대기(W0 완료 후) |
 | task-008 | SQLite 스키마·마이그레이션·boot_config | W1 | task-007 | 높음 | builder | 대기 |
