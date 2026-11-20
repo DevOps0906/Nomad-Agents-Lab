@@ -17,6 +17,9 @@ export const INVOKE_PATHS = [
   'search.query',
   'doc.preview',
   'doc.openExternal',
+  'skills.list',
+  'skills.get',
+  'skills.openFolder',
 ] as const;
 
 export type InvokePath = (typeof INVOKE_PATHS)[number];
@@ -209,4 +212,78 @@ export interface DocPreview {
 
 export interface OpenExternalResult {
   readonly opened: boolean;
+}
+
+// ---- A-07 skills.list · A-08 skills.get · skills.openFolder ----
+export type SkillRoot = 'user' | 'app';
+
+/** 유효하지 않은 SKILL.md의 사유 코드(원문·경로 없음) */
+export type SkillErrorCode =
+  | 'not_file'
+  | 'too_large'
+  | 'read_failed'
+  | 'no_frontmatter'
+  | 'frontmatter_too_large'
+  | 'yaml_error'
+  | 'alias_limit'
+  | 'frontmatter_not_object'
+  | 'name_missing'
+  | 'name_invalid'
+  | 'ssr_invalid'
+  | 'duplicate_name'
+  | 'shadowed';
+
+export interface SkillLastRun {
+  readonly status: string;
+  readonly startedAt: string;
+}
+
+/** 절대 경로는 없다: 위치(사용자/앱) + 스킬 폴더 이름만. */
+export interface SkillItem {
+  readonly name: string;
+  /** 스킬 폴더 이름(목록 키) */
+  readonly folder: string;
+  readonly description: string;
+  readonly root: SkillRoot;
+  readonly valid: boolean;
+  readonly error: SkillErrorCode | null;
+  /** epoch 밀리초 */
+  readonly mtime: number;
+  readonly lastRun: SkillLastRun | null;
+}
+
+export interface SkillInput {
+  readonly name: string;
+  readonly label?: string | undefined;
+  readonly required?: boolean | undefined;
+  readonly description?: string | undefined;
+}
+
+export interface SkillSsr {
+  readonly inputs: SkillInput[];
+  readonly reads: string[];
+  readonly tools: string[];
+}
+
+export type SkillRootStatus = 'ok' | 'missing' | 'unreadable';
+
+export interface SkillsListResult {
+  readonly items: SkillItem[];
+  readonly roots: { readonly root: SkillRoot; readonly status: SkillRootStatus }[];
+}
+
+export interface SkillGrant {
+  readonly grantId: number;
+  readonly folderIds: number[];
+  readonly tools: string[];
+  readonly lastUsedAt: string | null;
+}
+
+export interface SkillDetail extends SkillItem {
+  /** 본문 앞부분(일반 텍스트) */
+  readonly bodySummary: string;
+  readonly bodyTruncated: boolean;
+  /** `ssr:`가 없으면 null(자유 텍스트 입력 1칸) */
+  readonly ssr: SkillSsr | null;
+  readonly grants: SkillGrant[];
 }

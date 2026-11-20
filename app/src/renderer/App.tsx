@@ -5,6 +5,7 @@ import { invoke } from './api';
 import { IndexPanel } from './IndexPanel';
 import { Onboarding } from './Onboarding';
 import { SearchList } from './SearchList';
+import { SkillList } from './SkillList';
 import { darkTheme, lightTheme } from './theme';
 
 /** 좌측 내비 항목(docs/03_SCREENS_UX.md S-02 nav). 화면 내용은 각 기능 작업에서 채운다. */
@@ -128,6 +129,8 @@ function Shell() {
           <IndexPanel />
         ) : selected === 'S-03' ? (
           <SearchList />
+        ) : selected === 'S-04' ? (
+          <SkillList />
         ) : (
           <p className={styles.muted}>이 화면은 이후 작업에서 구현합니다.</p>
         )}

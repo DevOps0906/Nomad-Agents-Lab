@@ -383,6 +383,7 @@ describe('동시성·IPC', () => {
         sources,
         index: ix,
         brain: {} as never,
+        skills: {} as never,
       }),
       isTrustedUrl: createTrustedUrlCheck(),
     });
@@ -414,6 +415,7 @@ describe('동시성·IPC', () => {
         sources: { list: () => [], add: async () => ({ source: null }), remove: () => ({}) },
         index: ix,
         brain: {} as never,
+        skills: {} as never,
       }),
       isTrustedUrl: createTrustedUrlCheck(),
     });

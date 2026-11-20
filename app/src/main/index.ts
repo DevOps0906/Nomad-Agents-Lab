@@ -15,6 +15,7 @@ import { createRoutes } from './ipc/routes';
 import { createEnvCheck } from './onboarding/envCheck';
 import type { FolderPolicyContext } from './onboarding/folders';
 import { type MainBootState, type PickFolder, createOnboarding } from './onboarding/service';
+import { createSkills } from './skills/service';
 import { createSources } from './sources/service';
 import {
   APP_ENTRY_URL,
@@ -126,7 +127,21 @@ const brain = createBrain({
   log,
 });
 
-const routes = createRoutes({ envCheck, setDataDir: onboarding.setDataDir, sources, index: indexer, brain });
+// 스킬 폴더: 사용자 ~/.claude/skills. SSR_FAKE_SKILLS_DIR(절대경로)는 패키지 안 된 실행에서만 이 위치를 대신한다(개발·스크린샷용).
+const fakeSkillsDir = process.env['SSR_FAKE_SKILLS_DIR'];
+const userSkillsDir =
+  !app.isPackaged && fakeSkillsDir && path.isAbsolute(fakeSkillsDir)
+    ? fakeSkillsDir
+    : path.join(os.homedir(), '.claude', 'skills');
+
+const skills = createSkills({
+  store: () => (bootState?.kind === 'ready' ? { db: bootState.open.db } : null),
+  roots: () => [{ root: 'user', dir: userSkillsDir }],
+  openPath: (file) => shell.openPath(file),
+  log,
+});
+
+const routes = createRoutes({ envCheck, setDataDir: onboarding.setDataDir, sources, index: indexer, brain, skills });
 
 function closeDatabase(): void {
   // 진행 중 색인은 다음 배치부터 멈춘다(작업 행은 재시작 정리에서 interrupted).

@@ -31,5 +31,6 @@
 | 린트 | oxlint | 1.94.0 | MIT | typescript-eslint 8.73.0은 TS <6.1만 지원 → TS 7과 함께 쓰지 않음 |
 | 퓨즈 확인 | @electron/fuses | 2.1.3 | MIT | |
 | 타입 정의(개발 전용) | @types/react · @types/react-dom | 19.3.0 · 19.3.0 | MIT | 2026-11-20 사용자 승인 |
+| SKILL.md frontmatter 파싱 | yaml | 2.9.1 | ISC | 2026-11-20 사용자 승인. 하위 의존성 없음, 별칭·문서 크기 제한 옵션으로 사용 |
 
 - npm audit(2026-11-20): moderate 6건 — 모두 electron-builder 하위 `minimatch` DoS(빌드 도구 전용, 앱 런타임 미포함) → 수용, electron-builder 업데이트 시 재확인.

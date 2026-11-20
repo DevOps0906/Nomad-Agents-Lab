@@ -134,6 +134,7 @@ describe('search.query', () => {
         sources: {} as never,
         index: {} as never,
         brain: brain(),
+        skills: {} as never,
       }),
       isTrustedUrl: createTrustedUrlCheck(),
     });

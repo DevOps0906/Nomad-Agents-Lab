@@ -193,6 +193,7 @@ describe('계정 정보 비노출', () => {
           status: () => ({ running: false, jobs: [], failures: [] }),
         },
         brain: {} as never,
+        skills: {} as never,
       }),
       isTrustedUrl: createTrustedUrlCheck(),
       log,

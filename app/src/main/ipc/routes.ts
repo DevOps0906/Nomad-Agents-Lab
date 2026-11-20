@@ -10,6 +10,8 @@ import type {
   SearchQueryInput,
   SearchQueryResult,
   SetDataDirResult,
+  SkillDetail,
+  SkillsListResult,
   SourceAddResult,
   SourceItem,
 } from '../../shared/ipc';
@@ -34,6 +36,11 @@ export interface RouteDeps {
     preview(docId: number): DocPreview;
     openExternal(docId: number): Promise<OpenExternalResult>;
   };
+  skills: {
+    list(input?: { query?: string | undefined }): Promise<SkillsListResult>;
+    get(name: string): Promise<SkillDetail>;
+    openFolder(input: { root: 'user' | 'app'; folder: string }): Promise<OpenExternalResult>;
+  };
 }
 
 function route<S extends z.ZodType>(input: S, handle: (input: z.infer<S>, context: RouteContext) => unknown): Route {
@@ -45,6 +52,7 @@ const NoInput = z.object({}).strict().optional();
 
 const SourceId = z.number().int().positive();
 const DocId = z.number().int().positive();
+const SkillName = z.string().min(1).max(100);
 
 /** 허용 경로 → 처리기. 키는 shared/ipc.ts의 INVOKE_PATHS와 같아야 한다(타입으로 강제). 모든 입력은 .strict(). */
 export function createRoutes(deps: RouteDeps): { readonly [K in InvokePath]: Route } {
@@ -76,5 +84,13 @@ export function createRoutes(deps: RouteDeps): { readonly [K in InvokePath]: Rou
     ),
     'doc.preview': route(z.object({ docId: DocId }).strict(), (input) => deps.brain.preview(input.docId)),
     'doc.openExternal': route(z.object({ docId: DocId }).strict(), (input) => deps.brain.openExternal(input.docId)),
+    'skills.list': route(z.object({ query: z.string().trim().max(200).optional() }).strict().optional(), (input) =>
+      deps.skills.list(input),
+    ),
+    'skills.get': route(z.object({ name: SkillName }).strict(), (input) => deps.skills.get(input.name)),
+    'skills.openFolder': route(
+      z.object({ root: z.enum(['user', 'app']), folder: z.string().min(1).max(255) }).strict(),
+      (input) => deps.skills.openFolder(input),
+    ),
   };
 }

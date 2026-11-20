@@ -30,11 +30,12 @@ Electron 45.4.1 · React 19.3.1 · TypeScript 7.0.2 · Vite 8.3.8(electron-vite 
 | `src/main/sources/` | 연결 폴더 list·add·remove(A-02) |
 | `src/main/indexer/` | Markdown 색인(A-03): `walk.ts` 읽기 전용 순회(링크·junction 제외, 기본 제외 규칙, 읽기 실패는 불완전 순회), `parse.ts` 인코딩 판정·선형 스캐너로 제목·링크·태그 추출, `resolve.ts` 같은 소스 안 링크 재해석, `service.ts` 작업 1개 잠금·50개 단위 트랜잭션·증분(size+mtime→해시→parser_version)·완전한 순회에서만 삭제 표시 |
 | `src/main/brain/` | 목록 검색·미리보기(A-04·A-06): `service.ts` FTS 검색(구문 오류는 일반 텍스트 재시도, 3글자 미만 LIKE)·소스/태그/형식 필터·페이지, 미리보기 텍스트 4000자·관련 노드, 원본 열기는 ok·`.md`·realpath 재확인 뒤 `shell.openPath`(응답에 절대 경로 없음). 화면은 `renderer/SearchList.tsx`(상태 4종·키보드 ↓/↑/Enter/Esc) |
+| `src/main/skills/` | 스킬 목록·상세·폴더 열기(A-07·A-08): `service.ts` 사용자 `~/.claude/skills` 1단계 하위 폴더의 SKILL.md 읽기(링크·junction 제외, 1MB·frontmatter 64KB 상한), `yaml` 2.9.1 파싱(별칭 10개 제한)·`ssr:` zod 검증, 실패는 `valid=false`+사유 코드, 이름 충돌(앱>사용자, 같은 폴더는 폴더순 첫 번째), `skills` 테이블 캐시, 폴더 열기는 열기 직전 realpath 재확인(응답에 절대 경로 없음). 화면은 `renderer/SkillList.tsx`(S-04, 상태 4종·키보드). 개발 전용 `SSR_FAKE_SKILLS_DIR`는 패키지 안 된 실행에서만 |
 | `src/preload/index.ts` | `window.ssr.invoke(path, input)` 하나만 노출. 허용 목록 밖은 Main으로 보내지 않음 |
 | `src/shared/ipc.ts` | 채널 이름·허용 경로 목록·결과 타입·오류 코드(Preload와 Main 공용) |
 | `src/renderer/` | 앱 상태 라우팅(점검 중·S-01 마법사·연결 폴더 0개면 3단계 재개·시작 오류·셸), `Onboarding.tsx`(S-01), `theme.ts`(tokens.css → Fluent 테마 오버라이드) |
 | `src/main/db/` | SQLite 열기(WAL·FK·버전 검사·백업·마이그레이션), FTS 검색·본문 쓰기, 재시작 정리 |
-| `src/main/boot/` | 부트 설정(`userData/boot_config.json`) 읽기·원자적 쓰기, 시작 흐름·대기 중 전환·위치 경고, 첫 실행 `createDataStore`(기존 ssr.db 거부, 설정 쓰기 실패 시 만든 DB 삭제), `devOverrides.ts`(패키지 안 된 실행에서만 `SSR_FAKE_CLAUDE`·`SSR_FAKE_PICK_DIR`) |
+| `src/main/boot/` | 부트 설정(`userData/boot_config.json`) 읽기·원자적 쓰기, 시작 흐름·대기 중 전환·위치 경고, 첫 실행 `createDataStore`(기존 ssr.db 거부, 설정 쓰기 실패 시 만든 DB 삭제), `devOverrides.ts`(패키지 안 된 실행에서만 `SSR_FAKE_CLAUDE`·`SSR_FAKE_PICK_DIR`; `SSR_FAKE_SKILLS_DIR`는 `main/index.ts`에서 같은 조건으로) |
 | `migrations/` | 순번 SQL(`NNNN_name.sql`, 전진 전용). ERD는 `docs/diagrams/erd.mmd` |
 | `tests/` | Main IPC 거부·senderFrame·하드닝·CSP·경로 해석·preload, DB·부트, Claude 점검(가짜 CLI)·env.check·경로 검사·데이터 위치·연결 폴더 테스트. `tests/smoke/`는 DB 패키지 스모크 진입점 |
 

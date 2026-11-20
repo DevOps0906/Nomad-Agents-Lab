@@ -36,6 +36,11 @@ function fakeDeps() {
       preview: vi.fn(),
       openExternal: vi.fn(async () => ({ opened: true })),
     },
+    skills: {
+      list: vi.fn(async () => ({ items: [], roots: [] })),
+      get: vi.fn(),
+      openFolder: vi.fn(async () => ({ opened: true })),
+    },
   } satisfies RouteDeps;
 }
 const productionRoutes = createRoutes(fakeDeps());
@@ -55,6 +60,9 @@ describe('IPC 허용 목록(Main)', () => {
       'search.query',
       'doc.preview',
       'doc.openExternal',
+      'skills.list',
+      'skills.get',
+      'skills.openFolder',
     ]);
   });
 
@@ -148,6 +156,13 @@ describe('A-01·데이터 위치·A-02 입력 스키마(.strict)', () => {
     ['sources.remove', { sourceId: '1' }],
     ['sources.remove', { sourceId: 0 }],
     ['sources.remove', { sourceId: 1.5 }],
+    ['skills.get', { name: 'a', path: 'C:/x' }],
+    ['skills.get', { name: '' }],
+    ['skills.openFolder', { root: 'user', folder: 'a', path: 'C:/x' }],
+    ['skills.openFolder', { root: 'x', folder: 'a' }],
+    ['skills.openFolder', { name: 'a' }],
+    ['skills.openFolder', {}],
+    ['skills.list', { query: 'a', path: 'C:/x' }],
   ];
 
   it.each(rejected)('%s %j → E_VALIDATION, 서비스 미호출', async (path, input) => {
@@ -158,6 +173,9 @@ describe('A-01·데이터 위치·A-02 입력 스키마(.strict)', () => {
     expect(deps.setDataDir).not.toHaveBeenCalled();
     expect(deps.sources.add).not.toHaveBeenCalled();
     expect(deps.sources.remove).not.toHaveBeenCalled();
+    expect(deps.skills.get).not.toHaveBeenCalled();
+    expect(deps.skills.openFolder).not.toHaveBeenCalled();
+    expect(deps.skills.list).not.toHaveBeenCalled();
   });
 
   it('입력 없음 경로는 undefined·빈 객체를 받고, 대화상자 경로에는 발신 창(sender)을 넘긴다', async () => {
