@@ -7,7 +7,7 @@
 | task-003 | 스택 버전 확정·ADR-0005 채택 | W0 | — | 높음 | 팀장 | 완료 |
 | task-004 | 기술 검증 T-01~T-03 (Claude Code CLI) | W0 | — | 높음 | builder | 완료 |
 | task-005 | 보안 기본 설정(L1) | W0 | — | 낮음 | builder | 완료 |
-| task-006 | 디자인 토큰·DESIGN.md (데스크톱 우선) | W0 | task-003 | 낮음 | designer | 대기 |
+| task-006 | 디자인 토큰·DESIGN.md (데스크톱 우선) | W0 | task-003 | 낮음 | designer | 완료 |
 | task-007 | Electron 앱 뼈대·보안 하드닝 | W1 | task-003, task-004, task-005, task-006 | 높음 | builder | 대기(W0 완료 후) |
 | task-008 | SQLite 스키마·마이그레이션·boot_config | W1 | task-007 | 높음 | builder | 대기 |
 | task-009 | 로컬 폴더 연결·색인 (A-02·A-03) | W2 | task-008 | 높음 | builder | 대기 |
@@ -18,7 +18,7 @@
 | task-014 | 실행 기록·대시보드 (S-06·S-02, A-12·A-15) | W4 | task-013 | 보통 | builder | 대기 |
 | task-015 | 첫 실행 점검·설정 (S-01·S-08, A-01·A-17) | W4 | task-012, task-009 | 높음 | builder | 대기 |
 | task-016 | 1차 QA·자기 사용 검증(P1~P3·P5) | W5 | task-010, task-014, task-015 | 보통 | tester | 대기 |
-| task-017 | Second Brain 3D 성능 스파이크·상한 확정 | W0 | task-003 | 높음 | builder + designer | 진행 |
+| task-017 | Second Brain 3D 성능 스파이크·상한 확정 | W0 | task-003 | 높음 | builder + designer | 완료 |
 
 상태: 대기 / 진행 / 완료 / 보류
 

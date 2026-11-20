@@ -1,0 +1,253 @@
+{
+  "headed": false,
+  "dpr": 2,
+  "size": "1920,1080",
+  "cpuThrottle": 1,
+  "results": [
+    {
+      "renderer": "prototype",
+      "nodes": 100,
+      "links": 150,
+      "seed": 20261120,
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36",
+      "devicePixelRatio": 2,
+      "viewport": "1898x982",
+      "gpu": {
+        "vendor": "Google Inc. (NVIDIA)",
+        "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 3060 (0x00002504) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "drawingBuffer": "1984x865"
+      },
+      "firstRenderMs": 365.9,
+      "frameIntervalMs": {
+        "count": 175,
+        "mean": 17.15,
+        "p50": 16.7,
+        "p95": 16.9,
+        "max": 83.4
+      },
+      "fps": 58.3,
+      "cpuFrameMs": {
+        "count": 176,
+        "mean": 1.9,
+        "p50": 1.7,
+        "p95": 3.4,
+        "max": 6.7
+      },
+      "selectionMs": {
+        "count": 5,
+        "mean": 20.48,
+        "p50": 19.4,
+        "p95": 30.5,
+        "max": 30.5
+      },
+      "selectionHits": "3/5",
+      "drawInfo": {
+        "calls": 52,
+        "points": 5556,
+        "lines": 150
+      },
+      "jsHeapMB": 5,
+      "viewSwitchMs": {
+        "2d": 12.2,
+        "list": 18.6
+      },
+      "url": "http://127.0.0.1:5182/?bench=100&warmup=2000&sample=3000&selections=5"
+    },
+    {
+      "renderer": "prototype",
+      "nodes": 500,
+      "links": 750,
+      "seed": 20261120,
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36",
+      "devicePixelRatio": 2,
+      "viewport": "1898x982",
+      "gpu": {
+        "vendor": "Google Inc. (NVIDIA)",
+        "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 3060 (0x00002504) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "drawingBuffer": "1984x770"
+      },
+      "firstRenderMs": 226.4,
+      "frameIntervalMs": {
+        "count": 145,
+        "mean": 20.81,
+        "p50": 16.7,
+        "p95": 33.4,
+        "max": 50
+      },
+      "fps": 48.1,
+      "cpuFrameMs": {
+        "count": 146,
+        "mean": 8.43,
+        "p50": 8.9,
+        "p95": 12.1,
+        "max": 19.2
+      },
+      "selectionMs": {
+        "count": 5,
+        "mean": 20.28,
+        "p50": 19.8,
+        "p95": 28.2,
+        "max": 28.2
+      },
+      "selectionHits": "0/5",
+      "drawInfo": {
+        "calls": 96,
+        "points": 9780,
+        "lines": 750
+      },
+      "jsHeapMB": 12,
+      "viewSwitchMs": {
+        "2d": 44.6,
+        "list": 68.3
+      },
+      "url": "http://127.0.0.1:5182/?bench=500&warmup=2000&sample=3000&selections=5"
+    },
+    {
+      "renderer": "prototype",
+      "nodes": 1000,
+      "links": 1500,
+      "seed": 20261120,
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36",
+      "devicePixelRatio": 2,
+      "viewport": "1898x982",
+      "gpu": {
+        "vendor": "Google Inc. (NVIDIA)",
+        "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 3060 (0x00002504) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "drawingBuffer": "1984x770"
+      },
+      "firstRenderMs": 437.6,
+      "frameIntervalMs": {
+        "count": 63,
+        "mean": 47.63,
+        "p50": 49.9,
+        "p95": 66.8,
+        "max": 83.4
+      },
+      "fps": 21,
+      "cpuFrameMs": {
+        "count": 64,
+        "mean": 22.4,
+        "p50": 30.1,
+        "p95": 40.5,
+        "max": 45
+      },
+      "selectionMs": {
+        "count": 5,
+        "mean": 36,
+        "p50": 30.6,
+        "p95": 57.7,
+        "max": 57.7
+      },
+      "selectionHits": "0/5",
+      "drawInfo": {
+        "calls": 203,
+        "points": 20052,
+        "lines": 1500
+      },
+      "jsHeapMB": 28,
+      "viewSwitchMs": {
+        "2d": 81.7,
+        "list": 113.8
+      },
+      "url": "http://127.0.0.1:5182/?bench=1000&warmup=2000&sample=3000&selections=5"
+    },
+    {
+      "renderer": "prototype",
+      "nodes": 2000,
+      "links": 3000,
+      "seed": 20261120,
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36",
+      "devicePixelRatio": 2,
+      "viewport": "1898x982",
+      "gpu": {
+        "vendor": "Google Inc. (NVIDIA)",
+        "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 3060 (0x00002504) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "drawingBuffer": "1984x770"
+      },
+      "firstRenderMs": 809.8,
+      "frameIntervalMs": {
+        "count": 27,
+        "mean": 112.38,
+        "p50": 83.4,
+        "p95": 200.1,
+        "max": 233.4
+      },
+      "fps": 8.9,
+      "cpuFrameMs": {
+        "count": 28,
+        "mean": 50.82,
+        "p50": 20.8,
+        "p95": 135.4,
+        "max": 165.2
+      },
+      "selectionMs": {
+        "count": 5,
+        "mean": 94.28,
+        "p50": 93.3,
+        "p95": 129,
+        "max": 129
+      },
+      "selectionHits": "0/5",
+      "drawInfo": {
+        "calls": 541,
+        "points": 52500,
+        "lines": 3000
+      },
+      "jsHeapMB": 45,
+      "viewSwitchMs": {
+        "2d": 166.1,
+        "list": 249.2
+      },
+      "url": "http://127.0.0.1:5182/?bench=2000&warmup=2000&sample=3000&selections=5"
+    },
+    {
+      "renderer": "prototype",
+      "nodes": 5000,
+      "links": 7500,
+      "seed": 20261120,
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36",
+      "devicePixelRatio": 2,
+      "viewport": "1898x982",
+      "gpu": {
+        "vendor": "Google Inc. (NVIDIA)",
+        "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 3060 (0x00002504) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "drawingBuffer": "1984x770"
+      },
+      "firstRenderMs": 2329,
+      "frameIntervalMs": {
+        "count": 21,
+        "mean": 142.9,
+        "p50": 133.5,
+        "p95": 166.7,
+        "max": 166.7
+      },
+      "fps": 7,
+      "cpuFrameMs": {
+        "count": 22,
+        "mean": 41.68,
+        "p50": 41.1,
+        "p95": 48.4,
+        "max": 48.4
+      },
+      "selectionMs": {
+        "count": 5,
+        "mean": 220.26,
+        "p50": 149.5,
+        "p95": 459.1,
+        "max": 459.1
+      },
+      "selectionHits": "0/5",
+      "drawInfo": {
+        "calls": 406,
+        "points": 39540,
+        "lines": 7500
+      },
+      "jsHeapMB": 69,
+      "viewSwitchMs": {
+        "2d": 372.4,
+        "list": 525.4
+      },
+      "url": "http://127.0.0.1:5182/?bench=5000&warmup=2000&sample=3000&selections=5"
+    }
+  ]
+}

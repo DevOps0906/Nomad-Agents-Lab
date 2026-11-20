@@ -1,6 +1,8 @@
 import './style.css';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { createBenchHarness, readBenchParams } from './bench-harness.js';
+import { generateSampleGraph } from './sample-graph.js';
 
 const topics = {
   'AI 시스템': { color: '#81a7ff', className: 'ai' },
@@ -44,6 +46,16 @@ const links = [
   ['automation', 'focus-time'], ['idea-garden', 'learning-map'], ['idea-garden', 'writing-seed'],
   ['idea-garden', 'curiosity'], ['learning-map', 'curiosity'], ['writing-seed', 'reading-notes'],
 ];
+
+// 벤치 모드(?bench=N): 샘플 자료 대신 시드 고정 합성 그래프로 같은 렌더러를 측정한다.
+const benchParams = readBenchParams();
+const benchHarness = benchParams ? createBenchHarness({ params: benchParams, rendererName: 'prototype', linkCount: 0 }) : null;
+if (benchParams) {
+  const benchGraph = generateSampleGraph({ nodeCount: benchParams.nodeCount, seed: benchParams.seed, coreId: coreNodeId });
+  nodes.splice(0, nodes.length, ...benchGraph.nodes);
+  links.splice(0, links.length, ...benchGraph.links);
+  if (location.hash !== '#brain') history.replaceState(null, '', '#brain');
+}
 
 const nodeById = new Map(nodes.map((node) => [node.id, node]));
 const linkData = links.map(([source, target]) => ({ source, target }));
@@ -406,6 +418,7 @@ const animate = (timestamp) => {
     if (renderer) timer.update(timestamp);
     return;
   }
+  const frameStart = performance.now();
   timer.update(timestamp);
   const delta = timer.getDelta();
   const elapsed = timer.getElapsed();
@@ -453,6 +466,10 @@ const animate = (timestamp) => {
   updateLinks();
   updateLabels();
   renderer.render(scene, camera);
+  if (benchHarness) {
+    benchHarness.frame(performance.now() - frameStart);
+    benchHarness.markFirstRender();
+  }
 };
 
 const isRelated = (sourceId, targetId) => linkData.some(({ source, target }) => (source === sourceId && target === targetId) || (target === sourceId && source === targetId));
@@ -718,6 +735,16 @@ document.querySelector('#clear-selection').addEventListener('click', clearSelect
 searchInput.addEventListener('input', updateVisibleNodes);
 topicFilter.addEventListener('change', updateVisibleNodes);
 canvas.addEventListener('click', handleCanvasClick);
+// GPU 리셋·드라이버 오류로 WebGL 컨텍스트를 잃으면 3D를 끄고 2D로 계속한다.
+canvas.addEventListener('webglcontextlost', () => {
+  const button3d = viewButtons.find((button) => button.dataset.view === '3d');
+  if (button3d) {
+    button3d.disabled = true;
+    button3d.title = '3D 그래프를 표시할 수 없습니다.';
+  }
+  setView('2d');
+  status.textContent = '3D 그래프 표시가 중단되어 2D 보기로 전환했습니다. 앱을 다시 열면 3D를 다시 시도합니다.';
+});
 document.querySelector('#reset-camera').addEventListener('click', () => {
   if (!camera || !controls) return;
   camera.position.set(0, 0.2, 12.5);
@@ -751,6 +778,7 @@ document.querySelector('#document-count').textContent = String(nodes.length - 1)
 document.querySelector('#connection-count').textContent = String(links.length).padStart(2, '0');
 document.querySelector('#footer-node-count').textContent = nodes.length;
 
+benchHarness?.markSceneStart();
 if (createScene()) {
   animate();
 } else {
@@ -764,3 +792,29 @@ renderList();
 updateDashboard();
 updateDashboardViewTime();
 setPageFromHash();
+
+if (benchHarness && renderer) {
+  benchHarness.run({
+    renderer,
+    nodeIds: nodes.map(({ id }) => id),
+    // 2D·목록 대체 경로 전환 비용: DOM 생성 + 강제 레이아웃까지의 동기 시간
+    extra: () => {
+      const timeView = (view) => {
+        const start = performance.now();
+        setView(view);
+        void document.body.offsetHeight;
+        return Math.round((performance.now() - start) * 10) / 10;
+      };
+      const viewSwitchMs = { '2d': timeView('2d'), list: timeView('list') };
+      setView('3d');
+      return { links: links.length, viewSwitchMs };
+    },
+    selectByRaycast: (id) => {
+      nodeObjects.get(id).getWorldPosition(worldPosition);
+      projected.copy(worldPosition).project(camera);
+      const rect = canvas.getBoundingClientRect();
+      handleCanvasClick({ clientX: rect.left + (projected.x * 0.5 + 0.5) * rect.width, clientY: rect.top + (-projected.y * 0.5 + 0.5) * rect.height });
+      return selectedId === id;
+    },
+  });
+}

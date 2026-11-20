@@ -21,3 +21,12 @@
 | 저장 | better-sqlite3 (+ FTS5) | 13.2.0 | MIT | 네이티브 모듈 → @electron/rebuild 4.2.1로 Electron용 재빌드 |
 | 패키징 | electron-builder | 26.18.0 | MIT | |
 - 3D·2D 그래프 렌더러는 task-017 결과로 정한다. 설치는 W1(task-007)에서 하며 lockfile을 커밋한다.
+
+## 개발 도구 (2026-11-20 사용자 승인, W1 challenger 검토 반영)
+| 용도 | 패키지 | 버전 | 라이선스 | 비고 |
+|---|---|---|---|---|
+| 빌드(Main·preload·Renderer) | electron-vite | 6.0.0 | MIT | vite ^8 지원. sandbox preload는 단일 CJS 번들 |
+| 테스트 | vitest | 5.1.1 | MIT | better-sqlite3 ABI 분리 주의(task-008) |
+| IPC 입력 검증 | zod | 4.6.7 | MIT | |
+| 린트 | oxlint | 1.94.0 | MIT | typescript-eslint 8.73.0은 TS <6.1만 지원 → TS 7과 함께 쓰지 않음 |
+| 퓨즈 확인 | @electron/fuses | 2.1.3 | MIT | |
