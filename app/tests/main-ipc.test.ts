@@ -29,6 +29,7 @@ vi.mock('electron', () => {
       on: () => {},
       whenReady: () => Promise.resolve(),
     },
+    dialog: { showOpenDialog: vi.fn() },
     ipcMain: { handle: (channel: string, listener: unknown) => h.handles.set(channel, listener) },
     net: { fetch: vi.fn() },
     protocol: { registerSchemesAsPrivileged: () => {}, handle: () => {} },
@@ -47,7 +48,7 @@ vi.mock('../src/main/boot/start', () => ({ bootDataStore: () => Promise.resolve(
 
 // 제품 허용 목록은 비어 있으므로 zod 검증 경로를 태울 더미 경로 1개만 주입한다(배선은 실제 코드).
 vi.mock('../src/main/ipc/routes', () => ({
-  routes: { 'test.echo': { input: z.object({ text: z.string() }).strict(), handle: h.echo } },
+  createRoutes: () => ({ 'test.echo': { input: z.object({ text: z.string() }).strict(), handle: h.echo } }),
 }));
 
 const frame = (url: string, parent: unknown = null) => ({ senderFrame: { url, parent } });
@@ -76,7 +77,7 @@ describe('Main에 등록된 IPC 리스너', () => {
     });
   });
 
-  it.each(['env.check', '__proto__', 'constructor', 42])('허용 목록 밖 경로 %s → E_VALIDATION', async (path) => {
+  it.each(['settings.set', '__proto__', 'constructor', 42])('허용 목록 밖 경로 %s → E_VALIDATION', async (path) => {
     await expect(listener(trusted, path, {})).resolves.toEqual({ ok: false, error: { code: 'E_VALIDATION' } });
   });
 

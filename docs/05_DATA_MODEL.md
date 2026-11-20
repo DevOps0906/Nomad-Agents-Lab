@@ -7,7 +7,7 @@
 
 | 테이블 | 목적 | 주요 컬럼 | RLS 기준 | 비고 |
 |---|---|---|---|---|
-| `sources` | 연결 폴더·샘플 세트 | `id`, `kind`(`folder`·`sample`), `path`(정규화 절대 경로), `label`, `status`(`ok`·`missing`·`indexing`), `created_at`, `last_indexed_at` | 로컬 단일 사용자—해당 없음 | `path` 유일. 샘플은 `kind`로 실제 자료와 구분(project-plan#5) |
+| `sources` | 연결 폴더·샘플 세트 | `id`, `kind`(`folder`·`sample`), `path`(정규화 절대 경로), `label`, `status`(`ok`·`missing`·`indexing`), `created_at`, `last_indexed_at` | 로컬 단일 사용자—해당 없음 | `path`는 실제 경로(realpath)로 저장, `COLLATE NOCASE` 유일(대소문자만 다른 중복 금지). 샘플은 `kind`로 실제 자료와 구분(project-plan#5) |
 | `documents` | 색인된 Markdown·PDF 1건 | `id`, `source_id`→sources, `rel_path`, `title`, `format`(`md`·`pdf`), `size`, `mtime`, `content_hash`, `status`(`ok`·`error`·`encrypted`·`deleted`), `error`, `indexed_at` | 로컬 단일 사용자—해당 없음 | (`source_id`,`rel_path`) 유일. 해시로 증분 색인. 소스 삭제 시 연쇄 삭제 |
 | `doc_fts` | 전문 검색(FTS5 가상 테이블) | `rowid`=documents.id, `title`, `body`(추출 텍스트) | 로컬 단일 사용자—해당 없음 | 토크나이저 `trigram`([PRD Q11](01_PRD.md) 결정). 3글자 미만 검색어(2글자 이하)는 LIKE 대체 경로. 가상 테이블이라 FK CASCADE가 없어 documents 삽입·제목 갱신·삭제·삭제 표시 트리거로 동기화. 추출 텍스트 사본이 DB에 남음을 S-08에 고지 |
 | `links` | 문서 간 관계 | `id`, `src_doc_id`→documents, `dst_doc_id`→documents(NULL 허용, 대상 문서 삭제 시 NULL), `dst_raw`(원래 링크 문자열), `kind`(`link`·`manual`), `created_at` | 로컬 단일 사용자—해당 없음 | `dst_doc_id` NULL 또는 `status`=`deleted` 문서를 가리키는 관계는 그래프에서 "없는 문서" 노드로 취급(ADR-0003, A-05 `totalNodes`에 포함). UNIQUE(`src_doc_id`,`dst_doc_id`,`kind`)(NULL끼리는 중복 아님), 자기 자신 금지 CHECK. `manual`만 A-16으로 추가·삭제. `folder` 관계는 저장하지 않고 `rel_path`로 조회 시 계산 |

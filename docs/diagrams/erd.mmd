@@ -2,7 +2,7 @@ erDiagram
   sources {
     INTEGER id PK
     TEXT kind
-    TEXT path
+    TEXT path UK "realpath, COLLATE NOCASE"
     TEXT label
     TEXT status
     TEXT created_at

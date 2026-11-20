@@ -12,7 +12,8 @@ import {
 import { type CleanupCounts, cleanupAfterRestart } from '../db/recovery';
 import { type BootConfig, readBootConfig, writeBootConfig } from './config';
 
-export type DataDirWarning = 'network' | 'sync';
+/** unverified: UNC는 아니지만 로컬 고정 디스크인지 확인하지 못함(시스템 드라이브 밖 — 매핑된 네트워크 드라이브일 수 있음). */
+export type DataDirWarning = 'network' | 'sync' | 'unverified';
 
 /** 오류 화면(S-01 경로)으로 보낼 이유. 어느 경우에도 빈 DB를 만들지 않는다. */
 export type BootErrorReason =
@@ -46,10 +47,19 @@ export interface BootOptions extends Pick<OpenOptions, 'nativeBinding' | 'migrat
 const SYNC_SEGMENT = /^(onedrive( - .+)?|dropbox|google drive|googledrive|icloud ?drive|내 드라이브)$/i;
 const SYNC_ENV_KEYS = ['OneDrive', 'OneDriveConsumer', 'OneDriveCommercial'];
 
-/** 네트워크(UNC) 경로·동기화 폴더는 경고만 한다(차단하지 않음). 매핑된 네트워크 드라이브 문자는 판별하지 못한다. */
+/**
+ * 네트워크(UNC) 경로·동기화 폴더는 경고만 한다(차단하지 않음).
+ * 드라이브 종류(GetDriveType)는 네이티브 없이 확인할 수 없으므로, 시스템 드라이브(%SystemDrive%, 기본 C:)가 아닌
+ * 드라이브 문자는 로컬 고정 디스크인지 확인하지 못한 상태(unverified)로 경고한다.
+ */
 export function dataDirWarnings(dir: string, env: NodeJS.ProcessEnv = process.env): DataDirWarning[] {
   const warnings: DataDirWarning[] = [];
   if (/^(\\\\|\/\/)/.test(dir)) warnings.push('network');
+  else {
+    const drive = /^([A-Za-z]):/.exec(dir)?.[1]?.toUpperCase();
+    const systemDrive = /^([A-Za-z]):$/.exec(env['SystemDrive'] ?? '')?.[1]?.toUpperCase() ?? 'C';
+    if (!drive || drive !== systemDrive) warnings.push('unverified');
+  }
   const norm = path.resolve(dir).toLowerCase();
   const underSyncEnv = SYNC_ENV_KEYS.some((key) => {
     const root = env[key];
@@ -195,15 +205,35 @@ export async function bootDataStore(configFile: string, options: BootOptions = {
   }
 }
 
-/** 첫 실행(S-01)에서 사용자가 고른 위치에 DB를 만들고(이미 있으면 연다) 부트 설정을 쓴다. */
+/** 고른 폴더에 이미 ssr.db가 있다. 남의 DB에 마이그레이션을 적용하지 않도록 쓰지 않는다. */
+export class DataStoreExistsError extends Error {
+  constructor() {
+    super('ssr.db already exists in the chosen folder');
+    this.name = 'DataStoreExistsError';
+  }
+}
+
+/**
+ * 첫 실행(S-01)에서 사용자가 고른 위치에 새 DB를 만들고 부트 설정을 쓴다.
+ * 기존 ssr.db가 있으면 DataStoreExistsError. 설정 쓰기가 실패하면 연 DB를 닫고 오류를 그대로 던진다.
+ */
 export async function createDataStore(
   configFile: string,
   dataDir: string,
   options: BootOptions = {},
 ): Promise<OpenResult> {
-  if (!isDirectory(dataDir)) throw new Error(`data dir not found: ${dataDir}`);
-  const result = await openDatabase(path.join(dataDir, DB_FILE_NAME), openOptions(options, true));
-  writeBootConfig(configFile, { data_dir: dataDir });
+  if (!isDirectory(dataDir)) throw new Error('data dir not found');
+  const file = path.join(dataDir, DB_FILE_NAME);
+  if (existsSync(file)) throw new DataStoreExistsError();
+  const result = await openDatabase(file, openOptions(options, true));
+  try {
+    writeBootConfig(configFile, { data_dir: dataDir });
+  } catch (error) {
+    result.db.close();
+    // 이번 호출이 만든 DB만 지운다(위에서 없음을 확인했다). 같은 폴더를 다시 고를 수 있게 한다.
+    removeCopy(file);
+    throw error;
+  }
   return result;
 }
 

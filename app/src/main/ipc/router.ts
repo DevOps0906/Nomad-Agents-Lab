@@ -1,18 +1,48 @@
 import type { IpcMain } from 'electron';
 import type { z } from 'zod';
-import { INVOKE_CHANNEL, failure, type InvokeResult } from '../../shared/ipc';
+import { type ErrorCode, INVOKE_CHANNEL, failure, type InvokeResult } from '../../shared/ipc';
+
+/** 처리기에 넘기는 호출 정보. sender는 대화상자를 발신 창의 모달로 붙일 때만 쓴다(Electron WebContents). */
+export interface RouteContext {
+  readonly sender: unknown;
+}
 
 /** 경로 1개 = 입력 스키마 + 서비스 호출. */
 export interface Route {
   input: z.ZodType;
-  handle: (input: unknown) => unknown;
+  handle: (input: unknown, context: RouteContext) => unknown;
 }
+
+/** 서비스가 정해진 오류 코드로 실패할 때 던진다. 그 외 예외는 E_INTERNAL. */
+export class IpcError extends Error {
+  constructor(readonly code: ErrorCode) {
+    super(code);
+    this.name = 'IpcError';
+  }
+}
+
+/** 진행 중이면 E_BUSY로 거부하는 단일 잠금(대화상자 연타 방지). */
+export function createBusyLock() {
+  let busy = false;
+  return async function exclusive<T>(fn: () => Promise<T>): Promise<T> {
+    if (busy) throw new IpcError('E_BUSY');
+    busy = true;
+    try {
+      return await fn();
+    } finally {
+      busy = false;
+    }
+  };
+}
+
+export type BusyLock = ReturnType<typeof createBusyLock>;
 
 export type Routes = Readonly<Record<string, Route>>;
 
 /** Electron IpcMainInvokeEvent 중 라우터가 쓰는 부분만. */
 export interface InvokeEventLike {
   senderFrame: { url: string; parent: unknown } | null;
+  sender?: unknown;
 }
 
 export type InvokeHandler = (
@@ -50,8 +80,12 @@ export function createInvokeHandler({ routes, isTrustedUrl, log = () => {} }: Ro
       return failure('E_VALIDATION');
     }
     try {
-      return { ok: true, data: await route.handle(parsed.data) };
-    } catch {
+      return { ok: true, data: await route.handle(parsed.data, { sender: event.sender }) };
+    } catch (error) {
+      if (error instanceof IpcError) {
+        log(`ipc failed: ${path} ${error.code}`);
+        return failure(error.code);
+      }
       log(`ipc failed: ${path} E_INTERNAL`);
       return failure('E_INTERNAL');
     }

@@ -170,12 +170,23 @@ describe('대기 중 전환 실패 복구', () => {
 });
 
 describe('데이터 위치 경고', () => {
+  const sys = { SystemDrive: 'C:' };
+
   it('네트워크(UNC)·동기화 폴더는 경고한다', () => {
-    expect(dataDirWarnings('\\\\server\\share\\ssr', {})).toContain('network');
-    expect(dataDirWarnings('C:\\Users\\me\\OneDrive\\ssr', {})).toEqual(['sync']);
-    expect(dataDirWarnings('D:\\Sync\\ssr', { OneDrive: 'D:\\Sync' })).toEqual(['sync']);
-    expect(dataDirWarnings('D:\\SyncOther\\ssr', { OneDrive: 'D:\\Sync' })).toEqual([]);
-    expect(dataDirWarnings('C:\\Users\\me\\Dropbox\\ssr', {})).toEqual(['sync']);
-    expect(dataDirWarnings('D:\\ssr-data', {})).toEqual([]);
+    expect(dataDirWarnings('\\\\server\\share\\ssr', sys)).toContain('network');
+    expect(dataDirWarnings('C:\\Users\\me\\OneDrive\\ssr', sys)).toEqual(['sync']);
+    expect(dataDirWarnings('C:\\Sync\\ssr', { ...sys, OneDrive: 'C:\\Sync' })).toEqual(['sync']);
+    expect(dataDirWarnings('C:\\SyncOther\\ssr', { ...sys, OneDrive: 'C:\\Sync' })).toEqual([]);
+    expect(dataDirWarnings('C:\\Users\\me\\Dropbox\\ssr', sys)).toEqual(['sync']);
+    expect(dataDirWarnings('C:\\ssr-data', sys)).toEqual([]);
+  });
+
+  it('시스템 드라이브 밖(매핑 드라이브일 수 있음)은 확인 불가 경고', () => {
+    expect(dataDirWarnings('D:\\ssr-data', sys)).toEqual(['unverified']);
+    expect(dataDirWarnings('Z:\\share\\ssr', sys)).toEqual(['unverified']);
+    expect(dataDirWarnings('D:\\Sync\\ssr', { ...sys, OneDrive: 'D:\\Sync' })).toEqual(['unverified', 'sync']);
+    expect(dataDirWarnings('D:\\ssr-data', { SystemDrive: 'D:' })).toEqual([]);
+    expect(dataDirWarnings('d:\\ssr-data', { SystemDrive: 'D:' })).toEqual([]);
+    expect(dataDirWarnings('C:\\ssr-data', {})).toEqual([]);
   });
 });

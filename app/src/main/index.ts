@@ -1,11 +1,19 @@
+import { mkdirSync } from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { BrowserWindow, app, ipcMain, net, protocol, session } from 'electron';
+import { BrowserWindow, type WebContents, app, dialog, ipcMain, net, protocol, session } from 'electron';
 import { BOOT_CONFIG_FILE_NAME } from './boot/config';
-import { type BootResult, bootDataStore } from './boot/start';
+import { devOverrides } from './boot/devOverrides';
+import { bootDataStore } from './boot/start';
+import { createClaudeChecker, findClaude, findOnPath } from './claude/detect';
 import { bundledNativeBindingPath } from './db/open';
-import { createInvokeHandler, registerIpc } from './ipc/router';
-import { routes } from './ipc/routes';
+import { createBusyLock, createInvokeHandler, registerIpc } from './ipc/router';
+import { createRoutes } from './ipc/routes';
+import { createEnvCheck } from './onboarding/envCheck';
+import type { FolderPolicyContext } from './onboarding/folders';
+import { type MainBootState, type PickFolder, createOnboarding } from './onboarding/service';
+import { createSources } from './sources/service';
 import {
   APP_ENTRY_URL,
   APP_SCHEME,
@@ -27,15 +35,16 @@ const rendererRoot = path.join(__dirname, '../renderer');
 let mainWindow: BrowserWindow | null = null;
 
 /**
- * 시작 때 DB 상태. 실패해도 창은 띄우고 상태만 보관한다(S-01 오류 화면 연결은 task-015).
- * 경로·오류 원문은 Renderer로 보내지 않는다.
+ * 시작 때 DB 상태. 실패해도 창은 띄우고 상태만 보관한다(오류 상태는 S-01 대신 원인·다시 시도, 위치 재지정은 task-015).
+ * 경로·오류 원문은 Renderer로 보내지 않는다. 첫 실행에서 onboarding.setDataDir가 ready로 바꾼다.
  */
-let bootState: BootResult | { readonly kind: 'error'; readonly reason: 'boot_failed' } | null = null;
+let bootState: MainBootState = null;
+const bootOptions = () => ({ nativeBinding: bundledNativeBindingPath(__dirname) });
+const configFilePath = () => path.join(app.getPath('userData'), BOOT_CONFIG_FILE_NAME);
 
 async function bootDatabase(): Promise<void> {
-  const configFile = path.join(app.getPath('userData'), BOOT_CONFIG_FILE_NAME);
   try {
-    bootState = await bootDataStore(configFile, { nativeBinding: bundledNativeBindingPath(__dirname) });
+    bootState = await bootDataStore(configFilePath(), bootOptions());
   } catch (error) {
     console.error('[ssr] boot failed', error);
     bootState = { kind: 'error', reason: 'boot_failed' };
@@ -50,6 +59,61 @@ async function bootDatabase(): Promise<void> {
     log(`db not opened: ${bootState.kind === 'error' ? bootState.reason : bootState.kind}`);
   }
 }
+
+// ---- IPC 서비스(A-01·데이터 위치·A-02) ----
+const overrides = devOverrides(app.isPackaged, process.env, findOnPath(process.env, 'node.exe'));
+const exclusive = createBusyLock();
+const policy = (): FolderPolicyContext => ({ env: process.env, home: os.homedir(), userData: app.getPath('userData') });
+
+const pickFolder: PickFolder = async (sender) => {
+  if (overrides.pickDir) return overrides.pickDir;
+  const win = BrowserWindow.fromWebContents(sender as WebContents);
+  const options: Electron.OpenDialogOptions = { properties: ['openDirectory', 'dontAddToRecent'] };
+  const result = win ? await dialog.showOpenDialog(win, options) : await dialog.showOpenDialog(options);
+  return result.canceled ? null : (result.filePaths[0] ?? null);
+};
+
+/** CLI 실행 cwd = 앱 소유 폴더(userData). */
+const checkClaude = createClaudeChecker(() => {
+  const cwd = app.getPath('userData');
+  mkdirSync(cwd, { recursive: true });
+  return { launcher: overrides.claude ?? findClaude(process.env), cwd, env: process.env };
+});
+
+const envCheck = createEnvCheck({ state: () => bootState, reboot: bootDatabase, checkClaude, log });
+
+const onboarding = createOnboarding({
+  state: {
+    get: () => bootState,
+    set: (next) => {
+      bootState = next;
+    },
+  },
+  get configFile() {
+    return configFilePath();
+  },
+  get policy() {
+    return policy();
+  },
+  pickFolder,
+  exclusive,
+  get bootOptions() {
+    return bootOptions();
+  },
+  log,
+});
+
+const sources = createSources({
+  store: () => (bootState?.kind === 'ready' ? { db: bootState.open.db, dataDir: bootState.dataDir } : null),
+  get policy() {
+    return policy();
+  },
+  pickFolder,
+  exclusive,
+  log,
+});
+
+const routes = createRoutes({ envCheck, setDataDir: onboarding.setDataDir, sources });
 
 function closeDatabase(): void {
   if (bootState?.kind === 'ready' && bootState.open.db.open) {

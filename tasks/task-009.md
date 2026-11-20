@@ -1,27 +1,24 @@
-# task-009 로컬 폴더 연결·색인 (A-02·A-03)
+# task-009 색인 보강: PDF 등 (A-03 잔여)
 
 | 항목 | 내용 |
 |---|---|
-| 웨이브 | W2 |
-| 선행 | task-008 |
+| 웨이브 | W2 (슬라이스 2) |
+| 선행 | task-019 |
 | 위험도 | 높음 |
 | 보안 영향 | 민감 데이터 |
 | 담당 | builder |
-| 근거 | `docs/04_API.md` A-02·A-03, `docs/adr/0003`, `docs/diagrams/seq-indexing.mmd` |
+| 근거 | `docs/04_API.md` A-03, `docs/adr/0003`, `docs/diagrams/seq-indexing.mmd` |
 | 쓰기 허용 | `app/src/main/index/**` |
 
 ## 할 것
-- Main 대화상자로만 폴더 추가, 기본 제외 규칙, `index.preview`
-- Markdown 링크·위키링크·태그 추출, PDF 텍스트 추출
-- 해시 증분 색인, `index_jobs` 기록
+- PDF 텍스트 추출과 그 밖의 형식 보강(task-019에서 제외한 부분)
+- 추출 실패 파일을 `index.status` 실패 목록에 사유와 함께 기록
 
 ## 하지 않을 것
-- 원본 파일 수정
-- OCR
+- 원본 파일 수정, OCR
+- 폴더 연결(task-018)·Markdown 색인(task-019) 재작업
 
 ## 완료 조건 (실행 가능한 확인)
-- [ ] 샘플 폴더 색인 테스트(링크·태그·깨진 링크) 통과
-- [ ] 연결 폴더 밖 경로 `E_OUT_OF_SCOPE` 테스트
-
-## 이월 항목 (task-008에서)
-- links에 UNIQUE(src_doc_id, dst_doc_id, kind)가 있으므로 색인기는 같은 대상을 가리키는 표기(`[[a]]`·`[[a.md]]`)를 하나로 합쳐 넣는다.
+- [ ] PDF 샘플 색인·검색 테스트 통과(텍스트 PDF, 손상 PDF 실패 사유)
+- [ ] 기존 task-019 색인 테스트 회귀 없음
+- [ ] 연결 폴더 밖 경로 `E_OUT_OF_SCOPE` 테스트 유지

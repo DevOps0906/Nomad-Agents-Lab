@@ -22,7 +22,7 @@ describe('preload', () => {
 
   it('허용 목록 밖 경로는 Main으로 보내지 않고 거부한다', async () => {
     const api = exposed['ssr'] as SsrApi;
-    await expect(api.invoke('env.check')).resolves.toEqual({ ok: false, error: { code: 'E_VALIDATION' } });
+    await expect(api.invoke('settings.set')).resolves.toEqual({ ok: false, error: { code: 'E_VALIDATION' } });
     expect(invoke).not.toHaveBeenCalled();
   });
 });

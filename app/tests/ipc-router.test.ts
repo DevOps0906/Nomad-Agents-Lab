@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
-import { createInvokeHandler, type InvokeEventLike, type Routes } from '../src/main/ipc/router';
-import { routes as productionRoutes } from '../src/main/ipc/routes';
+import { IpcError, createBusyLock, createInvokeHandler, type InvokeEventLike, type Routes } from '../src/main/ipc/router';
+import { type RouteDeps, createRoutes } from '../src/main/ipc/routes';
 import { createTrustedUrlCheck } from '../src/main/security';
 import { INVOKE_PATHS } from '../src/shared/ipc';
 
@@ -17,15 +17,28 @@ function dummyRoutes(handle = vi.fn((input: unknown) => input)) {
   return { routes, handle };
 }
 
+function fakeDeps() {
+  return {
+    envCheck: vi.fn(async () => ({}) as never),
+    setDataDir: vi.fn(async () => ({ status: 'canceled' }) as const),
+    sources: {
+      list: vi.fn(() => []),
+      add: vi.fn(async () => ({ source: null })),
+      remove: vi.fn(() => ({ removed: true })),
+    },
+  } satisfies RouteDeps;
+}
+const productionRoutes = createRoutes(fakeDeps());
+
 describe('IPC 허용 목록(Main)', () => {
-  it('제품 허용 목록은 이 단계에서 비어 있고 Preload 목록과 같다', () => {
+  it('제품 허용 목록은 Preload 목록과 같다', () => {
     expect(Object.keys(productionRoutes)).toEqual([...INVOKE_PATHS]);
-    expect(INVOKE_PATHS).toHaveLength(0);
+    expect(INVOKE_PATHS).toEqual(['env.check', 'onboarding.setDataDir', 'sources.list', 'sources.add', 'sources.remove']);
   });
 
   it('허용 목록 밖 경로는 신뢰 프레임에서 와도 E_VALIDATION으로 거부한다', async () => {
     const handler = createInvokeHandler({ routes: productionRoutes, isTrustedUrl });
-    for (const path of ['env.check', 'sources.add', 'shell.openExternal', '', 42, null, undefined]) {
+    for (const path of ['settings.set', 'index.start', 'shell.openExternal', '', 42, null, undefined]) {
       await expect(handler(trusted, path, {})).resolves.toEqual({ ok: false, error: { code: 'E_VALIDATION' } });
     }
   });
@@ -96,5 +109,72 @@ describe('senderFrame 검증(Main)', () => {
     expect(devCheck('http://localhost:5173/')).toBe(true);
     expect(devCheck('http://localhost:5174/')).toBe(false);
     expect(devCheck('app://bundle/index.html')).toBe(false);
+  });
+});
+
+describe('A-01·데이터 위치·A-02 입력 스키마(.strict)', () => {
+  const rejected: Array<[string, unknown]> = [
+    ['env.check', { path: 'C:/x' }],
+    ['onboarding.setDataDir', { path: 'C:/x' }],
+    ['onboarding.setDataDir', 'C:/x'],
+    ['sources.list', { path: 'C:/x' }],
+    ['sources.add', { kind: 'dialog', path: 'C:/x' }],
+    ['sources.add', { kind: 'path', value: 'C:/x' }],
+    ['sources.add', { kind: 'sample' }],
+    ['sources.add', undefined],
+    ['sources.remove', { sourceId: 1, path: 'C:/x' }],
+    ['sources.remove', { sourceId: '1' }],
+    ['sources.remove', { sourceId: 0 }],
+    ['sources.remove', { sourceId: 1.5 }],
+  ];
+
+  it.each(rejected)('%s %j → E_VALIDATION, 서비스 미호출', async (path, input) => {
+    const deps = fakeDeps();
+    const handler = createInvokeHandler({ routes: createRoutes(deps), isTrustedUrl });
+    await expect(handler(trusted, path, input)).resolves.toEqual({ ok: false, error: { code: 'E_VALIDATION' } });
+    expect(deps.envCheck).not.toHaveBeenCalled();
+    expect(deps.setDataDir).not.toHaveBeenCalled();
+    expect(deps.sources.add).not.toHaveBeenCalled();
+    expect(deps.sources.remove).not.toHaveBeenCalled();
+  });
+
+  it('입력 없음 경로는 undefined·빈 객체를 받고, 대화상자 경로에는 발신 창(sender)을 넘긴다', async () => {
+    const deps = fakeDeps();
+    const handler = createInvokeHandler({ routes: createRoutes(deps), isTrustedUrl });
+    const sender = { id: 7 };
+    const event = { ...trusted, sender };
+    await expect(handler(event, 'env.check', undefined)).resolves.toMatchObject({ ok: true });
+    await expect(handler(event, 'sources.list', {})).resolves.toEqual({ ok: true, data: [] });
+    await handler(event, 'onboarding.setDataDir', undefined);
+    await handler(event, 'sources.add', { kind: 'dialog' });
+    await handler(event, 'sources.remove', { sourceId: 3 });
+    expect(deps.setDataDir).toHaveBeenCalledWith(sender);
+    expect(deps.sources.add).toHaveBeenCalledWith(sender);
+    expect(deps.sources.remove).toHaveBeenCalledWith(3);
+  });
+
+  it('서비스의 IpcError는 그 코드로 돌려준다', async () => {
+    const deps = fakeDeps();
+    deps.sources.remove.mockImplementation(() => {
+      throw new IpcError('E_NOT_FOUND');
+    });
+    const handler = createInvokeHandler({ routes: createRoutes(deps), isTrustedUrl });
+    await expect(handler(trusted, 'sources.remove', { sourceId: 9 })).resolves.toEqual({
+      ok: false,
+      error: { code: 'E_NOT_FOUND' },
+    });
+  });
+});
+
+describe('진행 중 잠금', () => {
+  it('진행 중이면 E_BUSY, 끝나면(실패 포함) 다시 받는다', async () => {
+    const exclusive = createBusyLock();
+    let release: () => void = () => {};
+    const first = exclusive(() => new Promise<string>((r) => (release = () => r('done'))));
+    await expect(exclusive(async () => 'second')).rejects.toMatchObject({ code: 'E_BUSY' });
+    release();
+    await expect(first).resolves.toBe('done');
+    await expect(exclusive(async () => Promise.reject(new Error('x')))).rejects.toThrow('x');
+    await expect(exclusive(async () => 'again')).resolves.toBe('again');
   });
 });

@@ -21,17 +21,20 @@ Electron 45.4.1 · React 19.3.1 · TypeScript 7.0.2 · Vite 8.3.8(electron-vite 
 ## 구조
 | 경로 | 역할 |
 |---|---|
-| `src/main/index.ts` | 앱 수명주기(시작 때 `bootDataStore`로 DB 열기·재시작 정리, 종료 때 닫기 — 실패는 로그·상태만, S-01 연결은 task-015), 단일 인스턴스 잠금, `app://` 프로토콜, 세션 잠금(권한 요청 거부·외부 네트워크 차단), 창 생성 |
+| `src/main/index.ts` | 앱 수명주기(시작 때 `bootDataStore`로 DB 열기·재시작 정리, 종료 때 닫기 — 실패는 상태로 보관해 env.check가 알림), IPC 서비스 조립(env.check·setDataDir·sources, 폴더 대화상자는 발신 창의 모달), 단일 인스턴스 잠금, `app://` 프로토콜, 세션 잠금(권한 요청 거부·외부 네트워크 차단), 창 생성 |
 | `src/main/security.ts` | webPreferences 고정값, 신뢰 출처 검사, CSP, `app://` 경로 해석, navigation·새 창·webview 차단 |
-| `src/main/ipc/router.ts` | IPC 라우터: `senderFrame` 확인 → 허용 목록 → zod 입력 검증 → 처리 → 오류 코드 |
-| `src/main/ipc/routes.ts` | 허용 경로 처리기(현재 비어 있음, A-01~A-17은 기능 작업에서 추가) |
+| `src/main/ipc/router.ts` | IPC 라우터: `senderFrame` 확인 → 허용 목록 → zod 입력 검증 → 처리(발신 창 전달) → 오류 코드(`IpcError`), 대화상자 연타 잠금(`createBusyLock`, `E_BUSY`) |
+| `src/main/ipc/routes.ts` | `createRoutes(deps)`: 허용 경로 처리기(env.check·onboarding.setDataDir·sources.list/add/remove, 입력은 모두 `.strict()`) |
+| `src/main/claude/detect/` | Claude Code 점검(A-01): PATH 절대경로 후보(npm 심은 cmd.exe 없이 패키지 실행 파일로), 셸 없음·고정 인자·cwd=userData·10초 초과 시 트리 종료, 버전 숫자 비교(하한 2.1.323), `auth status`는 로그인 여부·인증 방식만 |
+| `src/main/onboarding/` | 경로 검사(`folders.ts`: 원본 입력+realpath 판정, 거부 목록·겹침), 데이터 위치 지정(`service.ts`), env.check 조립(`envCheck.ts`) |
+| `src/main/sources/` | 연결 폴더 list·add·remove(A-02) |
 | `src/preload/index.ts` | `window.ssr.invoke(path, input)` 하나만 노출. 허용 목록 밖은 Main으로 보내지 않음 |
 | `src/shared/ipc.ts` | 채널 이름·허용 경로 목록·결과 타입·오류 코드(Preload와 Main 공용) |
-| `src/renderer/` | 앱 셸·좌측 내비, `theme.ts`(tokens.css → Fluent 테마 오버라이드) |
+| `src/renderer/` | 앱 상태 라우팅(점검 중·S-01 마법사·연결 폴더 0개면 3단계 재개·시작 오류·셸), `Onboarding.tsx`(S-01), `theme.ts`(tokens.css → Fluent 테마 오버라이드) |
 | `src/main/db/` | SQLite 열기(WAL·FK·버전 검사·백업·마이그레이션), FTS 검색·본문 쓰기, 재시작 정리 |
-| `src/main/boot/` | 부트 설정(`userData/boot_config.json`) 읽기·원자적 쓰기, 시작 흐름·대기 중 전환·위치 경고 |
+| `src/main/boot/` | 부트 설정(`userData/boot_config.json`) 읽기·원자적 쓰기, 시작 흐름·대기 중 전환·위치 경고, 첫 실행 `createDataStore`(기존 ssr.db 거부, 설정 쓰기 실패 시 만든 DB 삭제), `devOverrides.ts`(패키지 안 된 실행에서만 `SSR_FAKE_CLAUDE`·`SSR_FAKE_PICK_DIR`) |
 | `migrations/` | 순번 SQL(`NNNN_name.sql`, 전진 전용). ERD는 `docs/diagrams/erd.mmd` |
-| `tests/` | Main IPC 거부·senderFrame·하드닝·CSP·경로 해석·preload, DB·부트 테스트. `tests/smoke/`는 DB 패키지 스모크 진입점 |
+| `tests/` | Main IPC 거부·senderFrame·하드닝·CSP·경로 해석·preload, DB·부트, Claude 점검(가짜 CLI)·env.check·경로 검사·데이터 위치·연결 폴더 테스트. `tests/smoke/`는 DB 패키지 스모크 진입점 |
 
 ## 보안 설정 요약
 - webPreferences: `contextIsolation`·`sandbox` 켬, `nodeIntegration` 끔, `webSecurity` 유지, `webviewTag` 끔.

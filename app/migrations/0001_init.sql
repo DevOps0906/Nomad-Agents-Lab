@@ -4,7 +4,7 @@
 CREATE TABLE sources (
   id INTEGER PRIMARY KEY,
   kind TEXT NOT NULL CHECK (kind IN ('folder', 'sample')),
-  path TEXT NOT NULL UNIQUE,
+  path TEXT NOT NULL COLLATE NOCASE UNIQUE,
   label TEXT NOT NULL,
   status TEXT NOT NULL DEFAULT 'ok' CHECK (status IN ('ok', 'missing', 'indexing')),
   created_at TEXT NOT NULL,
@@ -77,7 +77,7 @@ CREATE TABLE skills (
   id INTEGER PRIMARY KEY,
   name TEXT NOT NULL,
   root TEXT NOT NULL CHECK (root IN ('user', 'app')),
-  path TEXT NOT NULL UNIQUE,
+  path TEXT NOT NULL COLLATE NOCASE UNIQUE,
   description TEXT,
   ssr_json TEXT,
   content_hash TEXT NOT NULL,
